@@ -27,6 +27,7 @@ import {
   setLastRead,
 } from '@/db/library';
 import { errorMessage } from '@/lib/async';
+import { inlineToText } from '@/lib/inline';
 import { readableParagraphs } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
 import { fixAhead, fixChapter, isCurrentFix, useFixState } from '@/quotes/fixer';
@@ -47,6 +48,33 @@ const native = Capacitor.isNativePlatform();
 function scrollFraction(): number {
   const max = document.documentElement.scrollHeight - window.innerHeight;
   return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 1;
+}
+
+/** Words per minute behind "time left": a typical silent-reading pace. */
+const READING_SPEED = 250;
+
+const scrollPercent = () => Math.round(scrollFraction() * 100);
+
+/** Percentage read and time left. Follows the scroll itself, so the chapter doesn't re-render. */
+function ReadingMeter({ words }: { words: number }) {
+  const [percent, setPercent] = useState(scrollPercent);
+  useEffect(() => {
+    const update = () => setPercent(scrollPercent());
+    // The length changes without scrolling too: text laying out, fonts loading, a new text size.
+    const observer = new ResizeObserver(update);
+    observer.observe(document.body);
+    window.addEventListener('scroll', update, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', update);
+    };
+  }, []);
+  const minutes = Math.ceil((words * (100 - percent)) / 100 / READING_SPEED);
+  return (
+    <span className={styles.meter}>
+      {percent}%{minutes > 0 && ` · ${minutes} min left`}
+    </span>
+  );
 }
 
 export function ReaderPage() {
@@ -101,6 +129,15 @@ export function ReaderPage() {
   const paragraphs = useMemo(
     () => (showOriginal ? readable : applyFixes(readable, needsFix, fix)),
     [readable, needsFix, fix, showOriginal],
+  );
+  const words = useMemo(
+    () =>
+      paragraphs.reduce(
+        (sum, paragraph) =>
+          sum + inlineToText(paragraph.markup).split(/\s+/).filter(Boolean).length,
+        0,
+      ),
+    [paragraphs],
   );
 
   // Load the text: from storage when downloaded, otherwise from the site (and keep it).
@@ -235,8 +272,6 @@ export function ReaderPage() {
 
   return (
     <div className={styles.reader} style={style} data-chrome={chrome} data-justify={prefs.justify}>
-      <div className={styles.progress} aria-hidden />
-
       <header className={styles.top} inert={!chrome}>
         <IconButton label="Back" onClick={goBack}>
           <ArrowLeft />
@@ -248,6 +283,7 @@ export function ReaderPage() {
         <IconButton label="Reading settings" onClick={() => setSettingsOpen(true)}>
           <Type />
         </IconButton>
+        <div className={styles.progress} aria-hidden />
       </header>
 
       <article className={styles.article} lang="en" onClick={onTextClick}>
@@ -320,9 +356,12 @@ export function ReaderPage() {
         <IconButton label="Previous chapter" disabled={!previous} onClick={() => goTo(previous)}>
           <ChevronLeft />
         </IconButton>
-        <button type="button" className={styles.toNovel} onClick={goBack}>
-          Chapter list
-        </button>
+        <div className={styles.middle}>
+          {content && <ReadingMeter words={words} />}
+          <button type="button" className={styles.toNovel} onClick={goBack}>
+            Chapter list
+          </button>
+        </div>
         <IconButton label="Next chapter" disabled={!next} onClick={goNext}>
           <ChevronRight />
         </IconButton>
