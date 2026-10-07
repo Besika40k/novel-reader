@@ -52,6 +52,15 @@ natively. Public repo, single user.
   padding deliberately ignores the top inset (it changes when full-screen hides the bars).
 - Never commit keystores, API keys or real chapter text.
 
+## Current work
+
+- Phase 2, quote fixing, is on branch `feat/quote-fixing`. Its design is in
+  `docs/quote-fixing.md`; build from it rather than re-deriving it.
+- No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
+  default, Gemini's free tier as a fallback).
+- The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few
+  screenshots.
+
 ## Git
 
 - One topic branch per change (`feat/…`, `fix/…`, `chore/…`), merged into `main` with `--no-ff`;
