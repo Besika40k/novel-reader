@@ -1,9 +1,11 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type MouseEvent,
 } from 'react';
@@ -28,7 +30,7 @@ import {
 } from '@/db/library';
 import { errorMessage } from '@/lib/async';
 import { inlineToText } from '@/lib/inline';
-import { readableParagraphs } from '@/lib/junk';
+import { readableParagraphs, type Paragraph } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
 import { fixAhead, fixChapter, isCurrentFix, isSettledFix, useFixState } from '@/quotes/fixer';
 import { analyseChapter, applyFixes } from '@/quotes/rules';
@@ -55,20 +57,44 @@ const READING_SPEED = 250;
 
 const scrollPercent = () => Math.round(scrollFraction() * 100);
 
-/** Percentage read and time left. Follows the scroll itself, so the chapter doesn't re-render. */
+function subscribeScroll(onChange: () => void): () => void {
+  // The length changes without scrolling too: text laying out, fonts loading, a new text size.
+  const observer = new ResizeObserver(onChange);
+  observer.observe(document.body);
+  window.addEventListener('scroll', onChange, { passive: true });
+  return () => {
+    observer.disconnect();
+    window.removeEventListener('scroll', onChange);
+  };
+}
+
+/**
+ * How far down the chapter, 0–100. Components that use it follow the scroll by themselves, so the
+ * chapter doesn't re-render.
+ */
+function useScrollPercent(): number {
+  return useSyncExternalStore(subscribeScroll, scrollPercent);
+}
+
+/**
+ * The progress line along the top bar's lower edge. Set from script rather than a CSS scroll-driven
+ * animation: the phone's WebView runs those on the main thread in step with the scroll, and fast
+ * scrolling then missed frames (measured 2026-10-08).
+ */
+function ProgressLine() {
+  const percent = useScrollPercent();
+  return (
+    <div
+      className={styles.progress}
+      style={{ transform: `scaleX(${percent / 100})` }}
+      aria-hidden
+    />
+  );
+}
+
+/** Percentage read and time left. */
 function ReadingMeter({ words }: { words: number }) {
-  const [percent, setPercent] = useState(scrollPercent);
-  useEffect(() => {
-    const update = () => setPercent(scrollPercent());
-    // The length changes without scrolling too: text laying out, fonts loading, a new text size.
-    const observer = new ResizeObserver(update);
-    observer.observe(document.body);
-    window.addEventListener('scroll', update, { passive: true });
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', update);
-    };
-  }, []);
+  const percent = useScrollPercent();
   const minutes = Math.ceil((words * (100 - percent)) / 100 / READING_SPEED);
   return (
     <span className={styles.meter}>
@@ -76,6 +102,18 @@ function ReadingMeter({ words }: { words: number }) {
     </span>
   );
 }
+
+/**
+ * The chapter's paragraphs, memoised: saving the reading position while scrolling updates the
+ * chapter row, which re-renders the page every 600 ms, and the text shouldn't be rebuilt each time.
+ */
+const ChapterText = memo(function ChapterText({ paragraphs }: { paragraphs: Paragraph[] }) {
+  return paragraphs.map((paragraph) => (
+    <p key={paragraph.index}>
+      <Inline markup={paragraph.markup} />
+    </p>
+  ));
+});
 
 export function ReaderPage() {
   const { novelId = '', index = '' } = useParams();
@@ -287,7 +325,7 @@ export function ReaderPage() {
         <IconButton label="Reading settings" onClick={() => setSettingsOpen(true)}>
           <Type />
         </IconButton>
-        <div className={styles.progress} aria-hidden />
+        <ProgressLine />
       </header>
 
       <article className={styles.article} lang="en" onClick={onTextClick}>
@@ -327,11 +365,7 @@ export function ReaderPage() {
                     onToggleOriginal={() => setOriginalOf(showOriginal ? undefined : url)}
                   />
                 )}
-                {paragraphs.map((paragraph) => (
-                  <p key={paragraph.index}>
-                    <Inline markup={paragraph.markup} />
-                  </p>
-                ))}
+                <ChapterText paragraphs={paragraphs} />
               </>
             )}
             {current?.content && (
