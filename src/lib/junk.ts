@@ -24,15 +24,23 @@ function normalise(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
+export interface Paragraph {
+  /** Position in the stored chapter. Quote fixes are keyed by it. */
+  index: number;
+  markup: string;
+}
+
 /**
  * Paragraphs as the reader shows them: junk lines removed, and a leading paragraph that only
  * repeats the chapter title dropped. Applied at render time so stored chapters stay untouched
  * and improve whenever these rules do.
  */
-export function readableParagraphs(title: string, paragraphs: readonly string[]): string[] {
-  const result = paragraphs.filter((p) => !isJunkParagraph(inlineToText(p)));
+export function readableParagraphs(title: string, paragraphs: readonly string[]): Paragraph[] {
+  const result = paragraphs
+    .map((markup, index) => ({ index, markup }))
+    .filter((p) => !isJunkParagraph(inlineToText(p.markup)));
   const first = result[0];
-  if (first !== undefined && title && normalise(inlineToText(first)) === normalise(title)) {
+  if (first !== undefined && title && normalise(inlineToText(first.markup)) === normalise(title)) {
     result.shift();
   }
   return result;

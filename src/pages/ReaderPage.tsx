@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useState,
   type CSSProperties,
   type MouseEvent,
@@ -12,6 +13,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Type } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Inline } from '@/components/Inline';
+import { QuoteNotice } from '@/components/QuoteNotice';
 import { ReaderSettings } from '@/components/ReaderSettings';
 import { Sheet } from '@/components/Sheet';
 import { db, type Chapter, type ChapterContent } from '@/db/db';
@@ -27,6 +29,9 @@ import {
 import { errorMessage } from '@/lib/async';
 import { readableParagraphs } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
+import { fixAhead, fixChapter, isCurrentFix, useFixState } from '@/quotes/fixer';
+import { analyseChapter, applyFixes } from '@/quotes/rules';
+import { aiProviders, useAiSettings } from '@/quotes/settings';
 import styles from './ReaderPage.module.scss';
 
 interface Loaded {
@@ -68,11 +73,35 @@ export function ReaderPage() {
   const [attempt, setAttempt] = useState(0);
   const [chrome, setChrome] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [originalOf, setOriginalOf] = useState<string>();
+  const aiSettings = useAiSettings();
+  const canFix = aiProviders(aiSettings).length > 0;
+  const autoFix = aiSettings.auto && canFix;
 
   const url = chapter?.url;
   const current = loaded?.url === url ? loaded : undefined;
   const ready = current?.content ? current.url : undefined;
   const startAt = current?.startAt ?? 0;
+
+  const stored = useLiveQuery(
+    async () => (url ? { url, fix: await db.fixes.get(url) } : undefined),
+    [url],
+  );
+  const fixLoaded = stored !== undefined && stored.url === url;
+  const fix = fixLoaded && isCurrentFix(stored.fix) ? stored.fix : undefined;
+  const fixState = useFixState(ready);
+  const title = current?.content?.title || chapter?.title || '';
+  const content = current?.content;
+  const readable = useMemo(
+    () => (content ? readableParagraphs(title, content.paragraphs) : []),
+    [content, title],
+  );
+  const needsFix = useMemo(() => analyseChapter(readable).needsFix, [readable]);
+  const showOriginal = url !== undefined && originalOf === url;
+  const paragraphs = useMemo(
+    () => (showOriginal ? readable : applyFixes(readable, needsFix, fix)),
+    [readable, needsFix, fix, showOriginal],
+  );
 
   // Load the text: from storage when downloaded, otherwise from the site (and keep it).
   useEffect(() => {
@@ -149,6 +178,19 @@ export function ReaderPage() {
     return () => clearTimeout(timer);
   }, [ready, nextUrl, nextStored]);
 
+  // Automatic quote fixing: the open chapter once, then the next stored one in the background.
+  const fixComplete = fix?.complete === true;
+  const attempted = fixState !== undefined;
+  const settled = !fixState?.running && (!needsFix || fixComplete || attempted);
+  useEffect(() => {
+    if (!ready || !fixLoaded || !needsFix || fixComplete || attempted || !autoFix) return;
+    fixChapter(ready).catch(() => undefined);
+  }, [ready, fixLoaded, needsFix, fixComplete, attempted, autoFix]);
+  useEffect(() => {
+    if (!ready || !nextUrl || !nextStored || !settled || !autoFix) return;
+    return fixAhead(nextUrl);
+  }, [ready, nextUrl, nextStored, settled, autoFix]);
+
   // Full-screen reading: the phone's bars follow the reader's own bars.
   useEffect(() => {
     if (!native) return;
@@ -185,8 +227,6 @@ export function ReaderPage() {
     setChrome((visible) => !visible);
   };
 
-  const title = current?.content?.title || chapter?.title || '';
-  const paragraphs = current?.content ? readableParagraphs(title, current.content.paragraphs) : [];
   const style = {
     '--reader-size': `${prefs.fontSize}px`,
     '--reader-leading': prefs.lineHeight,
@@ -233,11 +273,26 @@ export function ReaderPage() {
                 <Spinner label="Loading chapter" />
               </div>
             ) : (
-              paragraphs.map((paragraph, i) => (
-                <p key={i}>
-                  <Inline markup={paragraph} />
-                </p>
-              ))
+              <>
+                {(needsFix || fix) && (
+                  <QuoteNotice
+                    fix={fix}
+                    state={fixState}
+                    canFix={canFix}
+                    showOriginal={showOriginal}
+                    onFix={() => {
+                      if (ready) fixChapter(ready).catch(() => undefined);
+                    }}
+                    onSetUp={() => navigate('/settings#ai')}
+                    onToggleOriginal={() => setOriginalOf(showOriginal ? undefined : url)}
+                  />
+                )}
+                {paragraphs.map((paragraph) => (
+                  <p key={paragraph.index}>
+                    <Inline markup={paragraph.markup} />
+                  </p>
+                ))}
+              </>
             )}
             {current?.content && (
               <nav className={styles.end} aria-label="Chapters">

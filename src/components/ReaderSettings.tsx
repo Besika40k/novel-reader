@@ -1,6 +1,7 @@
 import { Minus, Plus } from 'lucide-react';
 import { setPrefs, usePrefs, type Prefs } from '@/lib/prefs';
 import { IconButton } from './Button';
+import { SwitchRow } from './Switch';
 import styles from './ReaderSettings.module.scss';
 
 // Swatch colours preview each theme's page and text, whichever theme is active.
@@ -112,28 +113,18 @@ export function ReaderSettings() {
         </div>
       </div>
 
-      <label className={styles.row}>
-        <span className={styles.label}>Justify text</span>
-        <input
-          type="checkbox"
-          className={styles.switch}
-          checked={prefs.justify}
-          onChange={(event) => setPrefs({ justify: event.target.checked })}
-        />
-      </label>
+      <SwitchRow
+        label="Justify text"
+        checked={prefs.justify}
+        onChange={(justify) => setPrefs({ justify })}
+      />
 
-      <label className={styles.row}>
-        <span className={styles.label}>
-          Full-screen reading
-          <span className={styles.hint}>Hides the phone&apos;s status and navigation bars</span>
-        </span>
-        <input
-          type="checkbox"
-          className={styles.switch}
-          checked={prefs.immersive}
-          onChange={(event) => setPrefs({ immersive: event.target.checked })}
-        />
-      </label>
+      <SwitchRow
+        label="Full-screen reading"
+        hint="Hides the phone's status and navigation bars"
+        checked={prefs.immersive}
+        onChange={(immersive) => setPrefs({ immersive })}
+      />
     </div>
   );
 }

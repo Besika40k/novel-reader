@@ -17,6 +17,10 @@ phone fetches pages itself.
 - **Text clean-up**: strips injected anti-piracy lines ("This content has been misappropriated
   from Royal Road…") and repairs paragraphs a site's scraper split mid-sentence. Stored text stays
   exactly as downloaded; fixes apply when a chapter is shown.
+- **Quote repair** for chapters a site stripped of quotation marks and apostrophes
+  (`Ew, Maya says.`, `Ive`). Rules fix the clear cases offline; with a free Groq key (and
+  optionally a free Gemini key) an AI model restores the rest, automatically or with one tap, and
+  the original is a tap away. Details in [docs/quote-fixing.md](docs/quote-fixing.md).
 
 Long-press a chapter for more: mark it (and everything before it) read, or download or delete it.
 
@@ -36,6 +40,16 @@ npm run build
 
 The browser can't read other sites directly (CORS), so `npm run dev` proxies requests through
 Vite. On the phone requests go out natively and need no proxy.
+
+To try AI quote fixing in the browser, put free keys in `.env.local` (gitignored, never commit
+it). The dev proxy adds them to AI requests, so they never reach the app:
+
+```
+GROQ_API_KEY=...
+GEMINI_API_KEY=...
+```
+
+On the phone, enter the keys in Settings → AI quote fixing instead.
 
 ## Put it on the phone
 
@@ -87,6 +101,7 @@ src/sources/     one file per site: search, novel page, chapter list and chapter
 src/db/          IndexedDB (Dexie): novels, chapters, chapter text, categories
 src/downloads/   download queue (two at a time, retries)
 src/lib/         HTTP, HTML-to-text, junk filter, preferences, theme, Android back button
+src/quotes/      quote and apostrophe repair: offline rules, AI client, stored fixes
 src/pages/       Library, Browse, Novel, Reader, Settings
 ```
 
@@ -100,6 +115,6 @@ src/pages/       Library, Browse, Novel, Reader, Settings
 
 ## Roadmap
 
-- Restore missing quotation marks in dialogue (phase 2), then styling for thoughts and telepathy.
+- Thoughts unquoted and telepathy in parentheses, on top of the quote repair.
 - Optional AI rewrite of machine-translated chapters, with a per-novel glossary.
 - Several sources per novel, EPUB export, library backup, volume-key page turning.

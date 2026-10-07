@@ -1,0 +1,23 @@
+.notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: -0.4em 0 1.6em;
+  padding: 6px 6px 6px 14px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  line-height: 1.35;
+
+  > svg {
+    flex: none;
+  }
+}
+
+.text {
+  flex: 1 1 8em;
+  padding: 6px 0;
+}

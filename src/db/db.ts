@@ -54,11 +54,27 @@ export interface Category {
   order: number;
 }
 
+/** Dialogue quotes an AI model restored in a chapter, kept apart from the source's text. */
+export interface QuoteFix {
+  url: string;
+  /** Changed paragraphs, by their index in ChapterContent.paragraphs. */
+  paragraphs: Record<number, string>;
+  /** The last paragraph index the model has gone through; fixing resumes after it. */
+  through: number;
+  complete: boolean;
+  /** Models that did the work, as "Provider model". */
+  models: string[];
+  /** The prompt version (see src/quotes/fixer.ts); older fixes are redone. */
+  version: number;
+  createdAt: number;
+}
+
 export const db = new Dexie('novel-reader') as Dexie & {
   novels: EntityTable<Novel, 'id'>;
   chapters: EntityTable<Chapter, 'url'>;
   contents: EntityTable<ChapterContent, 'url'>;
   categories: EntityTable<Category, 'id'>;
+  fixes: EntityTable<QuoteFix, 'url'>;
 };
 
 db.version(1).stores({
@@ -67,6 +83,7 @@ db.version(1).stores({
   contents: 'url',
   categories: '++id, order',
 });
+db.version(2).stores({ fixes: 'url' });
 
 db.on('populate', async (tx) => {
   await tx

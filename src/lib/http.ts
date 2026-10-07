@@ -5,6 +5,8 @@ import { parseHtml } from './html';
 export const USER_AGENT =
   'Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36';
 const TIMEOUT_MS = 30_000;
+// Language models can take a while to answer a long request.
+const AI_TIMEOUT_MS = 120_000;
 
 export class HttpError extends Error {
   readonly status: number;
@@ -76,6 +78,66 @@ export async function fetchText(url: string, signal?: AbortSignal): Promise<stri
 
 export async function fetchDocument(url: string, signal?: AbortSignal): Promise<Document> {
   return parseHtml(await fetchText(url, signal));
+}
+
+export interface JsonResponse {
+  status: number;
+  /** Header names in lower case. */
+  headers: Record<string, string>;
+  /** The parsed body, or the raw text when it isn't JSON. */
+  data: unknown;
+}
+
+function parseJson(data: unknown): unknown {
+  if (typeof data !== 'string') return data;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return data;
+  }
+}
+
+/**
+ * POSTs JSON to an API and returns the response whatever its status, since API errors carry
+ * details (rate limits, retry times) the caller needs.
+ */
+export async function postJson(
+  url: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+  signal?: AbortSignal,
+): Promise<JsonResponse> {
+  signal?.throwIfAborted();
+  if (Capacitor.isNativePlatform()) {
+    const response = await CapacitorHttp.post({
+      url,
+      headers: { 'Content-Type': 'application/json', ...headers },
+      data: body,
+      connectTimeout: 15_000,
+      readTimeout: AI_TIMEOUT_MS,
+    });
+    signal?.throwIfAborted();
+    return {
+      status: response.status,
+      headers: Object.fromEntries(
+        Object.entries(response.headers).map(([name, value]) => [name.toLowerCase(), value]),
+      ),
+      data: parseJson(response.data),
+    };
+  }
+
+  const timeout = AbortSignal.timeout(AI_TIMEOUT_MS);
+  const response = await fetch(`/__proxy?url=${encodeURIComponent(url)}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', ...headers },
+    body: JSON.stringify(body),
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+  });
+  return {
+    status: response.status,
+    headers: Object.fromEntries(response.headers.entries()),
+    data: parseJson(await response.text()),
+  };
 }
 
 /** Downloads an image as a data: URL, so it can be stored and shown offline. */

@@ -1,13 +1,17 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Trash } from 'lucide-react';
-import { Button, IconButton } from '@/components/Button';
+import { useLocation } from 'react-router';
+import { Button, IconButton, Spinner } from '@/components/Button';
 import { ReaderSettings } from '@/components/ReaderSettings';
+import { SwitchRow } from '@/components/Switch';
 import { TopBar } from '@/components/TopBar';
 import { addCategory, deleteCategory, renameCategory } from '@/db/categories';
 import { db } from '@/db/db';
 import { deleteDownloads } from '@/db/library';
 import { toast } from '@/lib/toast';
+import { testProvider } from '@/quotes/ai';
+import { aiProviders, setAiSettings, useAiSettings } from '@/quotes/settings';
 import { sources } from '@/sources';
 import styles from './SettingsPage.module.scss';
 
@@ -22,6 +26,14 @@ export function SettingsPage() {
   const [storage, setStorage] = useState<{ persisted?: boolean; usage?: number }>({});
   const [newCategory, setNewCategory] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const ai = useAiSettings();
+  const [testing, setTesting] = useState(false);
+  const { hash } = useLocation();
+
+  // The reader's "Set up" button links here.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView();
+  }, [hash]);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +68,26 @@ export function SettingsPage() {
     toast(`Deleted ${urls.length} downloaded chapters`);
   };
 
+  const testKeys = async () => {
+    const providers = aiProviders(ai);
+    if (!providers.length) {
+      toast('Add a Groq or Gemini key first');
+      return;
+    }
+    setTesting(true);
+    const results = await Promise.all(
+      providers.map(async (provider) => ({
+        name: provider.name,
+        ...(await testProvider(provider)),
+      })),
+    );
+    setTesting(false);
+    toast(
+      results.map(({ name, message }) => `${name}: ${message}`).join(' · '),
+      results.every(({ ok }) => ok) ? 'info' : 'error',
+    );
+  };
+
   return (
     <>
       <TopBar display title="Settings" />
@@ -63,6 +95,74 @@ export function SettingsPage() {
       <section className={styles.section}>
         <h2 className={styles.heading}>Reading</h2>
         <ReaderSettings />
+      </section>
+
+      <section className={styles.section} id="ai">
+        <h2 className={styles.heading}>AI quote fixing</h2>
+        <p className={styles.hint}>
+          Some chapters lose their dialogue quotes on the site. Simple rules put back the clear
+          cases; an AI model can put back the rest. Free keys are enough: one from{' '}
+          <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">
+            Groq
+          </a>
+          , and optionally one from{' '}
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">
+            Google AI Studio
+          </a>{' '}
+          for when Groq&apos;s daily limit runs out. Keys stay on this phone.
+        </p>
+        <label className={styles.field}>
+          Groq key
+          <input
+            type="password"
+            value={ai.groqKey}
+            onChange={(event) => setAiSettings({ groqKey: event.target.value })}
+            placeholder="gsk_…"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </label>
+        <label className={styles.field}>
+          Groq models, in order
+          <input
+            value={ai.groqModels}
+            onChange={(event) => setAiSettings({ groqModels: event.target.value })}
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+        </label>
+        <label className={styles.field}>
+          Gemini key (optional)
+          <input
+            type="password"
+            value={ai.geminiKey}
+            onChange={(event) => setAiSettings({ geminiKey: event.target.value })}
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </label>
+        <label className={styles.field}>
+          Gemini models, in order
+          <input
+            value={ai.geminiModels}
+            onChange={(event) => setAiSettings({ geminiModels: event.target.value })}
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+        </label>
+        <SwitchRow
+          label="Fix automatically"
+          hint="When a chapter that needs it opens, and the next downloaded one in the background"
+          checked={ai.auto}
+          onChange={(auto) => setAiSettings({ auto })}
+        />
+        <Button
+          onClick={testKeys}
+          disabled={testing}
+          icon={testing ? <Spinner size={18} /> : undefined}
+        >
+          Test keys
+        </Button>
       </section>
 
       <section className={styles.section}>
