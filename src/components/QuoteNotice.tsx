@@ -1,14 +1,14 @@
 import type { QuoteFix } from '@/db/db';
-import type { FixState } from '@/quotes/fixer';
+import { isArchiveFix, type FixState } from '@/quotes/fixer';
 import { Button, Spinner } from './Button';
 import styles from './QuoteNotice.module.scss';
 
 interface QuoteNoticeProps {
-  /** The chapter's AI fix, when there is a current one. */
+  /** The chapter's fix, when there is a current one. */
   fix?: QuoteFix;
   state?: FixState;
-  /** Whether an AI key is set up. */
-  canFix: boolean;
+  /** What a fix would come from: the novel's archived Royal Road chapters, AI, or nothing yet. */
+  fixWith?: 'Royal Road' | 'AI';
   showOriginal: boolean;
   onFix: () => void;
   onSetUp: () => void;
@@ -19,7 +19,7 @@ interface QuoteNoticeProps {
 export function QuoteNotice({
   fix,
   state,
-  canFix,
+  fixWith,
   showOriginal,
   onFix,
   onSetUp,
@@ -37,7 +37,7 @@ export function QuoteNotice({
   }
 
   const fixButton = (label: string) =>
-    canFix ? <Button onClick={onFix}>{label}</Button> : <Button onClick={onSetUp}>Set up</Button>;
+    fixWith ? <Button onClick={onFix}>{label}</Button> : <Button onClick={onSetUp}>Set up</Button>;
 
   if (state?.error) {
     return (
@@ -54,9 +54,11 @@ export function QuoteNotice({
         <span className={styles.text}>
           {showOriginal
             ? 'Showing the original text'
-            : fix.complete
-              ? 'Quotes fixed'
-              : 'Quotes fixed in part of this chapter'}
+            : isArchiveFix(fix)
+              ? 'Quotes from Royal Road'
+              : fix.complete
+                ? 'Quotes fixed by AI'
+                : 'Quotes fixed in part of this chapter'}
         </span>
         {!fix.complete && !showOriginal && fixButton('Finish')}
         <Button variant="ghost" onClick={onToggleOriginal}>
@@ -69,7 +71,7 @@ export function QuoteNotice({
   return (
     <div className={styles.notice}>
       <span className={styles.text}>Dialogue quotes are missing in this chapter.</span>
-      {fixButton('Fix with AI')}
+      {fixButton(fixWith === 'Royal Road' ? 'Fix from Royal Road' : 'Fix with AI')}
     </div>
   );
 }

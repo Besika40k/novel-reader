@@ -18,9 +18,10 @@ phone fetches pages itself.
   from Royal Road…") and repairs paragraphs a site's scraper split mid-sentence. Stored text stays
   exactly as downloaded; fixes apply when a chapter is shown.
 - **Quote repair** for chapters a site stripped of quotation marks and apostrophes
-  (`Ew, Maya says.`, `Ive`). Rules fix the clear cases offline; with a free Groq key (and
-  optionally a free Gemini key) an AI model restores the rest, automatically or with one tap, and
-  the original is a tap away. Details in [docs/quote-fixing.md](docs/quote-fixing.md).
+  (`Ew, Maya says.`, `Ive`). For a novel linked to its Royal Road original, the quotes come from
+  the Internet Archive's copies of its chapters, exactly. Otherwise rules fix the clear cases
+  offline, and with a free Groq key (and optionally a free Gemini key) an AI model restores the
+  rest with one tap. The original is a tap away. Details in [docs/quote-fixing.md](docs/quote-fixing.md).
 
 Long-press a chapter for more: mark it (and everything before it) read, or download or delete it.
 

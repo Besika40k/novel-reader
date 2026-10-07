@@ -2,7 +2,9 @@
 
 Some NovelPhoenix chapters lost their curly quotes and apostrophes to the site's scraper:
 `Ew, Maya says.` instead of `"Ew," Maya says.`, and `Ive` instead of `I've`. Often only part of
-a chapter is affected. This feature puts them back. Status: built (`src/quotes/`).
+a chapter is affected. This feature puts them back. Status: built (`src/quotes/`). The best
+source, where it exists, is the Internet Archive's copy of the Royal Road original (below); the
+rules and AI cover the rest.
 
 ## Constraints
 
@@ -30,8 +32,44 @@ For each chapter, at render time (`ReaderPage`):
    stripped contractions. Quoted paragraphs don't count against it: the scraper often strips only
    part of a chapter (chapter 252 has 9 quoted paragraphs and 5 tagged unquoted ones).
 
-3. `applyFixes`: the AI's version of each paragraph it fixed (checked again by `acceptFix`);
-   otherwise the rules.
+3. `applyFixes`: the stored fix of each paragraph, from the Archive or the AI (checked again by
+   `acceptFix`); otherwise the rules, which also take the paragraphs an Archive fix `missed`.
+
+## Archived originals (`archive.ts`, `transfer.ts`, free, no key)
+
+Every mirror of this novel (NovelPhoenix, NovelFire, NovelFull, FreeWebNovel, ReadNovelFull)
+has the same stripped text, and Royal Road removed chapters 12–695 when the novel went to Kindle.
+The Internet Archive kept Royal Road's own pages, quotes intact: 446 of 456 chapters in 240–695
+and all of 12–239 (checked 2026-10-07).
+
+- **Link**: a novel stores `royalRoadUrl` (novel page → "Quotes from Royal Road"). The sheet can
+  find it with Royal Road's title search, but Royal Road's bot protection rejects some clients
+  (Node's fetch and so the dev proxy get 403), so pasting the link always works too.
+- **Index**: one CDX query per novel lists the archived chapter pages (`cdxUrl`, filtered to
+  `/chapter/<id>/<slug>` with status 200; about 2,200 lines for this novel). `parseCdx` groups
+  them by Royal Road's chapter id, which survives the novel's URL changing, and takes the number
+  from the slug. The index is cached in the `archives` table and fetched again, at most weekly,
+  when a chapter isn't in it.
+- **Chapter**: `findArchivedChapter` matches the number in the chapter title (Royal Road's
+  "Chapter 250 - Surrounded" is NovelPhoenix's "Chapter 250: Surrounded"), then the words. The
+  page comes from `web.archive.org/web/<timestamp>id_/<url>` (the page as served, no toolbar),
+  newest copy first; the text is `.chapter-inner`.
+- **Transfer** (`transferQuotes`): each copy paragraph is found in the original by its letters
+  and digits alone, on word boundaries and in order, so paragraph breaks, Royal Road's extra
+  anti-theft lines and punctuation differences don't matter. Short paragraphs only count near
+  the previous match. A paragraph the original words slightly differently ("staring" vs
+  "starting", a dropped word) is aligned character by character (longest common subsequence)
+  within the gap its neighbours leave, if 85% of its letters line up. Then only quotation marks
+  and apostrophes move: each run of marks is attached to its neighbouring character in the
+  original (opening marks to the next, closing marks and apostrophes to the previous) and
+  placed at that character's partner in the copy, outside adjacent `<b>`/`<i>` tags. Every
+  paragraph still passes `acceptFix`.
+- **Measured** on chapters 130, 250, 420 and 610: every story paragraph placed (the only miss was
+  NovelPhoenix's own "Read the official version…" line), including the 5 reworded paragraphs of
+  chapter 420. Chapter 250 got 21 quoted paragraphs where the rules found 14. Chapter 130 was
+  flagged by detection but its copy already had the quotes, so nothing changed.
+- Stored as a `QuoteFix` with `models: ['Royal Road']`, `through` covering the chapter and the
+  unplaced paragraphs in `missed`. It replaces an AI fix (`isSettledFix`).
 
 ## Rules (`rules.ts`, offline, no key)
 
@@ -96,16 +134,21 @@ On chapter 252 the rules quote exactly the 5 tagged lines, with no false positiv
 
 ## UI
 
-- **Settings → AI quote fixing**: Groq key and models, Gemini key and models, "Fix
-  automatically" (on by default; it only acts once a key is set), and "Test keys".
+- **Novel page → Quotes from Royal Road**: link, find by title, or remove the link.
+- **Settings → AI quote fixing**: Groq key and models, Gemini key and models, "Fix with AI
+  automatically" (`aiAuto`, off by default since the Archive fix: the free limits run out after
+  a few chapters and the AI's quotes were often wrong), and "Test keys".
 - **Reader**, on a chapter that needs fixing, a line under the title:
-  - "Dialogue quotes are missing in this chapter." with **Fix with AI**, or **Set up** without
-    a key (it opens Settings at the AI section).
+  - "Dialogue quotes are missing in this chapter." with **Fix from Royal Road** for a linked
+    novel, **Fix with AI** with a key, or **Set up** without either (it opens Settings at the AI
+    section).
   - "Fixing quotes… 2/3" while it runs; the rules' version shows meanwhile.
-  - "Quotes fixed" with **Show original**, which shows the source text without any fixes.
+  - "Quotes from Royal Road" or "Quotes fixed by AI" with **Show original**, which shows the
+    source text without any fixes.
   - Errors, with **Try again**.
 - **Automatic mode** fixes the open chapter once per session, then the next chapter when it's
-  stored (the reader prefetches it), at most one chapter a minute.
+  stored (the reader prefetches it), at most one chapter a minute. A linked novel always uses it
+  (from the Archive); AI joins in only with `aiAuto` on.
 
 ## Development
 
@@ -116,11 +159,18 @@ On chapter 252 the rules quote exactly the 5 tagged lines, with no false positiv
 - `postJson()` in `src/lib/http.ts`: CapacitorHttp.post on the phone, the proxy in the browser.
   It returns every status, since API errors carry the retry details.
 - Tests: `rules.test.ts` (apostrophes, both quote patterns and their guards, tags, detection,
-  verification, applyFixes) and `ai.test.ts` (chunking, prompt and reply parsing, and the 429
-  fallbacks with a mocked `postJson`).
+  verification, applyFixes), `ai.test.ts` (chunking, prompt and reply parsing, and the 429
+  fallbacks with a mocked `postJson`), `transfer.test.ts` (placement, reworded paragraphs,
+  markup) and `archive.test.ts` (CDX parsing, chapter matching, page and search parsing).
 
 ## Next
 
 - Thoughts unquoted and telepathy in parentheses (the owner's original request), probably as
   prompt and rule changes plus a `FIX_VERSION` bump.
-- A Royal Road source would give chapters 696+ of this novel with quotes intact.
+- A Royal Road source would give chapters 696+ of this novel with quotes intact (they're free
+  there; the Archive may lack the newest).
+- The junk filter misses notices without a site name ("The narrative has been taken without
+  permission. Report any sightings.", "Read the official version to support the creator.").
+  An Archive fix could mark copy paragraphs it can't place that look like notices.
+- Novels with no Archive copy: the test bench and on-device statistical model (option B) from the
+  owner's plan, if the rules aren't enough.

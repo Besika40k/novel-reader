@@ -1,4 +1,5 @@
 import { Dexie, type EntityTable } from 'dexie';
+import type { ArchiveIndex } from '@/quotes/archive';
 
 /** IndexedDB can't index booleans, so flags are stored as 0 or 1. */
 export type Flag = 0 | 1;
@@ -24,6 +25,8 @@ export interface Novel {
   checkedAt?: number;
   lastReadUrl?: string;
   lastReadAt?: number;
+  /** The novel on Royal Road, whose archived chapters are the best source for quotes. */
+  royalRoadUrl?: string;
 }
 
 export interface Chapter {
@@ -54,15 +57,20 @@ export interface Category {
   order: number;
 }
 
-/** Dialogue quotes an AI model restored in a chapter, kept apart from the source's text. */
+/**
+ * Dialogue quotes restored in a chapter, from an archived original or by an AI model, kept apart
+ * from the source's text.
+ */
 export interface QuoteFix {
   url: string;
   /** Changed paragraphs, by their index in ChapterContent.paragraphs. */
   paragraphs: Record<number, string>;
-  /** The last paragraph index the model has gone through; fixing resumes after it. */
+  /** The last paragraph index the fix has gone through; AI fixing resumes after it. */
   through: number;
+  /** Paragraphs the archived original didn't have; the rules handle them. */
+  missed?: number[];
   complete: boolean;
-  /** Models that did the work, as "Provider model". */
+  /** What did the work: AI models as "Provider model", or ARCHIVE_SOURCE. */
   models: string[];
   /** The prompt version (see src/quotes/fixer.ts); older fixes are redone. */
   version: number;
@@ -75,6 +83,7 @@ export const db = new Dexie('novel-reader') as Dexie & {
   contents: EntityTable<ChapterContent, 'url'>;
   categories: EntityTable<Category, 'id'>;
   fixes: EntityTable<QuoteFix, 'url'>;
+  archives: EntityTable<ArchiveIndex, 'novelId'>;
 };
 
 db.version(1).stores({
@@ -84,6 +93,7 @@ db.version(1).stores({
   categories: '++id, order',
 });
 db.version(2).stores({ fixes: 'url' });
+db.version(3).stores({ archives: 'novelId' });
 
 db.on('populate', async (tx) => {
   await tx

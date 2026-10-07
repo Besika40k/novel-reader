@@ -166,6 +166,35 @@
   justify-content: space-between;
 }
 
+.royalRoad {
+  @include pressable;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 2 * var(--gutter));
+  min-height: $tap;
+  margin: 14px var(--gutter) 0;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+
+  svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    color: var(--muted);
+  }
+
+  span:first-of-type {
+    flex: 1;
+  }
+}
+
 .count {
   color: var(--muted);
   font-size: 0.82rem;

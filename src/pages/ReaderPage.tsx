@@ -29,7 +29,7 @@ import {
 import { errorMessage } from '@/lib/async';
 import { readableParagraphs } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
-import { fixAhead, fixChapter, isCurrentFix, useFixState } from '@/quotes/fixer';
+import { fixAhead, fixChapter, isCurrentFix, isSettledFix, useFixState } from '@/quotes/fixer';
 import { analyseChapter, applyFixes } from '@/quotes/rules';
 import { aiProviders, useAiSettings } from '@/quotes/settings';
 import styles from './ReaderPage.module.scss';
@@ -75,8 +75,12 @@ export function ReaderPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [originalOf, setOriginalOf] = useState<string>();
   const aiSettings = useAiSettings();
-  const canFix = aiProviders(aiSettings).length > 0;
-  const autoFix = aiSettings.auto && canFix;
+  // Chapters of a novel linked to Royal Road take their quotes from the Archive's copies, which is
+  // free and exact, so that always runs; AI only runs by itself when the setting allows it.
+  const linked = novel?.royalRoadUrl !== undefined;
+  const canAi = aiProviders(aiSettings).length > 0;
+  const aiAuto = aiSettings.aiAuto && canAi;
+  const autoFix = linked || aiAuto;
 
   const url = chapter?.url;
   const current = loaded?.url === url ? loaded : undefined;
@@ -179,13 +183,13 @@ export function ReaderPage() {
   }, [ready, nextUrl, nextStored]);
 
   // Automatic quote fixing: the open chapter once, then the next stored one in the background.
-  const fixComplete = fix?.complete === true;
+  const fixSettled = isSettledFix(fix, linked);
   const attempted = fixState !== undefined;
-  const settled = !fixState?.running && (!needsFix || fixComplete || attempted);
+  const settled = !fixState?.running && (!needsFix || fixSettled || attempted);
   useEffect(() => {
-    if (!ready || !fixLoaded || !needsFix || fixComplete || attempted || !autoFix) return;
-    fixChapter(ready).catch(() => undefined);
-  }, [ready, fixLoaded, needsFix, fixComplete, attempted, autoFix]);
+    if (!ready || !fixLoaded || !needsFix || fixSettled || attempted || !autoFix) return;
+    fixChapter(ready, { ai: aiAuto }).catch(() => undefined);
+  }, [ready, fixLoaded, needsFix, fixSettled, attempted, autoFix, aiAuto]);
   useEffect(() => {
     if (!ready || !nextUrl || !nextStored || !settled || !autoFix) return;
     return fixAhead(nextUrl);
@@ -278,7 +282,7 @@ export function ReaderPage() {
                   <QuoteNotice
                     fix={fix}
                     state={fixState}
-                    canFix={canFix}
+                    fixWith={linked ? 'Royal Road' : canAi ? 'AI' : undefined}
                     showOriginal={showOriginal}
                     onFix={() => {
                       if (ready) fixChapter(ready).catch(() => undefined);
