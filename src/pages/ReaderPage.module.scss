@@ -2,18 +2,18 @@
   min-height: 100dvh;
 }
 
-// Chapter progress, driven by the page scroll itself (no JavaScript).
+// Chapter progress along the top bar's lower edge, so it shows only with the bars. Driven by the
+// page scroll itself (no JavaScript).
 .progress {
   display: none;
 }
 
 @supports (animation-timeline: scroll()) {
   .progress {
-    position: fixed;
-    top: var(--safe-top);
+    position: absolute;
+    bottom: -1px;
     left: 0;
     right: 0;
-    z-index: 45;
     display: block;
     height: 2px;
     background: var(--accent);
@@ -93,6 +93,21 @@
 .chapterTitle {
   font-size: 0.95rem;
   font-weight: 650;
+}
+
+.middle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.meter {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .toNovel {
