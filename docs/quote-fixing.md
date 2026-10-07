@@ -44,7 +44,8 @@ and all of 12–239 (checked 2026-10-07).
 
 - **Link**: a novel stores `royalRoadUrl` (novel page → "Quotes from Royal Road"). The sheet can
   find it with Royal Road's title search, but Royal Road's bot protection rejects some clients
-  (Node's fetch and so the dev proxy get 403), so pasting the link always works too.
+  (it answers 403 to Node's fetch, so to the dev proxy, and to a made-up user agent; the phone
+  sends its WebView's real one), so pasting the link always works too.
 - **Index**: one CDX query per novel lists the archived chapter pages (`cdxUrl`, filtered to
   `/chapter/<id>/<slug>` with status 200; about 2,200 lines for this novel). `parseCdx` groups
   them by Royal Road's chapter id, which survives the novel's URL changing, and takes the number

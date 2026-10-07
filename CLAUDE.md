@@ -34,7 +34,8 @@ natively. Public repo, single user.
   added). Bump `FIX_VERSION` when the prompt or rules change. Keys live in localStorage on the
   phone; in dev the proxy adds them from `.env.local`.
 - All network access goes through `src/lib/http.ts`: CapacitorHttp on the phone, the dev proxy in
-  the browser.
+  the browser. The phone sends the WebView's own user agent; Royal Road answers 403 to a made-up
+  one, and to the dev proxy whatever it sends.
 - Preferences live in localStorage (`src/lib/prefs.ts`); the inline script in index.html reads the
   same key to set the theme before first paint.
 
