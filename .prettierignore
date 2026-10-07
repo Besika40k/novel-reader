@@ -1,0 +1,4 @@
+android
+dist
+package-lock.json
+src/sources/__fixtures__
