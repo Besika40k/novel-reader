@@ -1,7 +1,10 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { parseHtml } from './html';
 
-/** One mobile Chrome identity everywhere, so sites serve the markup the source parsers expect. */
+/**
+ * The mobile Chrome identity of requests from the dev proxy, so sites serve the markup the source
+ * parsers expect. The phone sends its WebView's own user agent instead (see request()).
+ */
 export const USER_AGENT =
   'Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36';
 const TIMEOUT_MS = 30_000;
@@ -42,10 +45,12 @@ async function request(
   signal?.throwIfAborted();
   if (Capacitor.isNativePlatform()) {
     // A native request isn't bound by CORS and reaches the site like a normal visit from the phone.
+    // It carries the WebView's real user agent: Royal Road's bot protection answers 403 to a
+    // made-up one, while every site accepts the real one (checked 2026-10-07).
     const response = await CapacitorHttp.get({
       url,
       responseType,
-      headers: { 'User-Agent': USER_AGENT, 'Accept-Language': 'en-US,en;q=0.9' },
+      headers: { 'User-Agent': navigator.userAgent, 'Accept-Language': 'en-US,en;q=0.9' },
       connectTimeout: 15_000,
       readTimeout: TIMEOUT_MS,
     });
