@@ -178,8 +178,9 @@ export function loadChapterContent(url: string): Promise<ChapterContent> {
 }
 
 export async function deleteDownloads(urls: string[]): Promise<void> {
-  await db.transaction('rw', db.contents, db.chapters, async () => {
+  await db.transaction('rw', db.contents, db.fixes, db.chapters, async () => {
     await db.contents.bulkDelete(urls);
+    await db.fixes.bulkDelete(urls);
     await db.chapters.where('url').anyOf(urls).modify({ downloaded: 0 });
   });
 }

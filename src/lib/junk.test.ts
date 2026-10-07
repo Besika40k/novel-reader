@@ -32,12 +32,15 @@ describe('readableParagraphs', () => {
         'Stolen from Royal Road. Please report it.',
         'It kept falling.',
       ]),
-    ).toEqual(['Snow fell.', 'It kept falling.']);
+    ).toEqual([
+      { index: 1, markup: 'Snow fell.' },
+      { index: 3, markup: 'It kept falling.' },
+    ]);
   });
 
   it('keeps a first paragraph that only resembles the title', () => {
     expect(readableParagraphs('Frost', ['Frost covered everything.'])).toEqual([
-      'Frost covered everything.',
+      { index: 0, markup: 'Frost covered everything.' },
     ]);
   });
 });

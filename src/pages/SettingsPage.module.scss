@@ -1,6 +1,7 @@
 .section {
   display: grid;
   gap: 14px;
+  scroll-margin-top: calc(var(--safe-top) + var(--bar-height));
   margin: 8px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
   padding: 18px 0 22px;
 
@@ -52,6 +53,10 @@
 .hint {
   color: var(--muted);
   font-size: 0.8rem;
+
+  a {
+    color: inherit;
+  }
 }
 
 .facts {
@@ -73,5 +78,29 @@
     margin: 0;
     font-weight: 600;
     text-align: right;
+  }
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  input {
+    height: $tap;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-weight: 400;
+
+    &:focus {
+      border-color: var(--ink-soft);
+      outline: none;
+    }
   }
 }
