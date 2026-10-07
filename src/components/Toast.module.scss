@@ -1,0 +1,31 @@
+// Toasts sit under the top bar, clear of the bottom tabs, sheets and download progress.
+.toast {
+  position: fixed;
+  top: calc(var(--safe-top) + var(--bar-height) + 8px);
+  left: 50%;
+  z-index: 60;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--gutter));
+  padding: 12px 16px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--bg);
+  box-shadow: var(--shadow);
+  font-size: 0.9rem;
+  text-align: left;
+  transform: translateX(-50%);
+  animation: drop 180ms ease-out;
+}
+
+.error {
+  background: var(--danger);
+  color: #fff;
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+}

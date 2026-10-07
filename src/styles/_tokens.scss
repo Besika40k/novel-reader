@@ -1,0 +1,33 @@
+// Injected into every SCSS file by vite.config.ts, so it must not emit CSS on its own.
+// Colours live as custom properties in global.scss so themes can switch them at runtime.
+
+$tap: 44px;
+
+@mixin pressable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease,
+    transform 120ms ease;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+}
+
+@mixin clamp-lines($lines) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin section-label {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
