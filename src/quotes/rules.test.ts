@@ -141,4 +141,13 @@ describe('applyFixes', () => {
       '"Yes," he says.',
     ]);
   });
+
+  it('leaves paragraphs an archived original missed to the rules', () => {
+    const fix = { paragraphs: { 0: '"Ew," Maya says.' }, through: 2, missed: [2] };
+    expect(applyFixes(chapter, true, fix).map((p) => p.markup)).toEqual([
+      '"Ew," Maya says.',
+      "Don't, I say.",
+      '"Yes," he says.',
+    ]);
+  });
 });

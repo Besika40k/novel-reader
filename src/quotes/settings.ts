@@ -8,8 +8,12 @@ export interface AiSettings {
   groqModels: string;
   geminiKey: string;
   geminiModels: string;
-  /** Fix chapters that need it as they open, and the next downloaded one in the background. */
-  auto: boolean;
+  /**
+   * Let AI fix chapters that need it as they open, and the next downloaded one in the background.
+   * Off by default: Royal Road's archived chapters do it better where they exist, and the free
+   * limits run out after a few chapters.
+   */
+  aiAuto: boolean;
 }
 
 export const DEFAULT_AI_SETTINGS: AiSettings = {
@@ -17,7 +21,7 @@ export const DEFAULT_AI_SETTINGS: AiSettings = {
   groqModels: 'openai/gpt-oss-120b, openai/gpt-oss-20b',
   geminiKey: '',
   geminiModels: 'gemini-flash-lite-latest',
-  auto: true,
+  aiAuto: false,
 };
 
 // Apart from the reading prefs: keys never need to reach the inline script in index.html.

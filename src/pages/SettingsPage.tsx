@@ -100,8 +100,10 @@ export function SettingsPage() {
       <section className={styles.section} id="ai">
         <h2 className={styles.heading}>AI quote fixing</h2>
         <p className={styles.hint}>
-          Some chapters lose their dialogue quotes on the site. Simple rules put back the clear
-          cases; an AI model can put back the rest. Free keys are enough: one from{' '}
+          Some chapters lose their dialogue quotes on the site. For a novel from Royal Road, link it
+          on the novel page and the quotes come from archived copies of the original. Otherwise
+          simple rules put back the clear cases, and an AI model can put back the rest. Free keys
+          are enough: one from{' '}
           <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer">
             Groq
           </a>
@@ -151,10 +153,10 @@ export function SettingsPage() {
           />
         </label>
         <SwitchRow
-          label="Fix automatically"
-          hint="When a chapter that needs it opens, and the next downloaded one in the background"
-          checked={ai.auto}
-          onChange={(auto) => setAiSettings({ auto })}
+          label="Fix with AI automatically"
+          hint="When a chapter that needs it opens, and the next downloaded one in the background. Uses up the free limit quickly."
+          checked={ai.aiAuto}
+          onChange={(aiAuto) => setAiSettings({ aiAuto })}
         />
         <Button
           onClick={testKeys}

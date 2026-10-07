@@ -25,11 +25,14 @@ natively. Public repo, single user.
   markup of `src/lib/inline.ts` (escaped text plus `<b>`/`<i>`), rendered by `Inline` without
   innerHTML. Clean-ups run at render time (`readableParagraphs`, then `applyFixes`), so
   improving a rule improves every stored chapter.
-- `src/quotes/`: quote repair, designed and measured in `docs/quote-fixing.md`. Offline rules
-  (`rules.ts`), an OpenAI-compatible client for free tiers (`ai.ts`), and AI fixes stored in the
-  `fixes` table by chapter URL and paragraph index (`fixer.ts`). Every AI paragraph must pass
-  `acceptFix` (only quotes and apostrophes added). Bump `FIX_VERSION` when the prompt or rules
-  change. Keys live in localStorage on the phone; in dev the proxy adds them from `.env.local`.
+- `src/quotes/`: quote repair, designed and measured in `docs/quote-fixing.md`. Best source: the
+  Internet Archive's copy of the Royal Road original, for novels linked to Royal Road
+  (`archive.ts` finds it, `transfer.ts` copies only its quote marks onto our text). Otherwise
+  offline rules (`rules.ts`) and an OpenAI-compatible client for free tiers (`ai.ts`, automatic
+  only when `aiAuto` is on). Fixes live in the `fixes` table by chapter URL and paragraph index
+  (`fixer.ts`), and every fixed paragraph must pass `acceptFix` (only quotes and apostrophes
+  added). Bump `FIX_VERSION` when the prompt or rules change. Keys live in localStorage on the
+  phone; in dev the proxy adds them from `.env.local`.
 - All network access goes through `src/lib/http.ts`: CapacitorHttp on the phone, the dev proxy in
   the browser.
 - Preferences live in localStorage (`src/lib/prefs.ts`); the inline script in index.html reads the
@@ -59,8 +62,9 @@ natively. Public repo, single user.
 
 ## Current work
 
-- Phase 2, quote fixing, is built on branch `feat/quote-fixing` and waits for merging and a test
-  on the phone. Next: thoughts unquoted and telepathy in parentheses (see the doc's "Next").
+- Merged on 2026-10-07, waiting for a test on the phone: the LN Jormungandr name, serpent icon
+  and splash; progress shown only with the reader's bars; quotes from archived Royal Road
+  chapters. Next: thoughts unquoted and telepathy in parentheses (see the doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few

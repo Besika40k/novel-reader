@@ -6,6 +6,7 @@ import {
   BookmarkPlus,
   BookOpen,
   Download,
+  Quote,
   RefreshCw,
   Trash,
 } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Button, IconButton, Spinner } from '@/components/Button';
 import { ChapterRow } from '@/components/ChapterRow';
 import { Cover } from '@/components/Cover';
 import { DownloadStatus } from '@/components/DownloadStatus';
+import { RoyalRoadSheet } from '@/components/RoyalRoadSheet';
 import { Sheet } from '@/components/Sheet';
 import { TopBar } from '@/components/TopBar';
 import { chaptersOf, db, type Chapter } from '@/db/db';
@@ -63,7 +65,7 @@ export function NovelPage() {
   const [error, setError] = useState<string>();
   const [newestFirst, setNewestFirst] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const [sheet, setSheet] = useState<'library' | 'download'>();
+  const [sheet, setSheet] = useState<'library' | 'download' | 'royalRoad'>();
   const [actionsFor, setActionsFor] = useState<Chapter>();
   const [flashIndex, setFlashIndex] = useState<number>();
   usePageScroll(`novel:${novelId}`, novel !== undefined && chapters !== undefined);
@@ -249,6 +251,12 @@ export function NovelPage() {
               ))}
             </ul>
           )}
+
+          <button type="button" className={styles.royalRoad} onClick={() => setSheet('royalRoad')}>
+            <Quote aria-hidden />
+            <span>Quotes from Royal Road</span>
+            <span className={styles.count}>{novel.royalRoadUrl ? 'Linked' : 'Not linked'}</span>
+          </button>
         </>
       )}
 
@@ -338,6 +346,15 @@ export function NovelPage() {
           </Button>
         </div>
       </Sheet>
+
+      {novel && (
+        <RoyalRoadSheet
+          key={novel.royalRoadUrl ?? ''}
+          novel={novel}
+          open={sheet === 'royalRoad'}
+          onClose={closeSheet}
+        />
+      )}
 
       <Sheet open={sheet === 'library'} onClose={closeSheet} title="Category">
         <div className={styles.sheetList}>

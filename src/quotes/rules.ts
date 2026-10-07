@@ -207,20 +207,21 @@ export function acceptFix(original: string, fixed: string): string | undefined {
 }
 
 /**
- * The paragraphs to show: the AI's version where it fixed one, otherwise the rules' (apostrophes
- * always; quotes when the chapter lost them and the AI hasn't been through that paragraph).
+ * The paragraphs to show: the fixed version where there is one, otherwise the rules' (apostrophes
+ * always; quotes when the chapter lost them and the fix hasn't covered that paragraph).
  */
 export function applyFixes(
   paragraphs: readonly Paragraph[],
   quotes: boolean,
-  fix?: { paragraphs: Record<number, string>; through: number },
+  fix?: { paragraphs: Record<number, string>; through: number; missed?: number[] },
 ): Paragraph[] {
+  const missed = new Set(fix?.missed);
   return paragraphs.map(({ index, markup }) => {
     const fixed = fix?.paragraphs[index];
     const accepted = fixed === undefined ? undefined : acceptFix(markup, fixed);
     if (accepted !== undefined) return { index, markup: accepted };
     const restored = restoreApostrophes(markup);
-    const covered = fix !== undefined && index <= fix.through;
+    const covered = fix !== undefined && index <= fix.through && !missed.has(index);
     return { index, markup: quotes && !covered ? restoreQuotes(restored) : restored };
   });
 }

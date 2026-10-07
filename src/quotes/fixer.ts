@@ -1,16 +1,38 @@
 import { useSyncExternalStore } from 'react';
-import { db, type QuoteFix } from '@/db/db';
+import { db, type Novel, type QuoteFix } from '@/db/db';
 import { errorMessage } from '@/lib/async';
 import { readableParagraphs } from '@/lib/junk';
 import { chunkParagraphs, fixChunk } from './ai';
+import { archivedText } from './archive';
 import { analyseChapter, restoreApostrophes, restoreQuotes } from './rules';
 import { aiProviders, getAiSettings } from './settings';
+import { transferQuotes } from './transfer';
 
 /** Bump when the prompt or the rules change enough that stored fixes should be redone. */
 export const FIX_VERSION = 1;
 
 export function isCurrentFix(fix: QuoteFix | null | undefined): fix is QuoteFix {
   return fix?.version === FIX_VERSION;
+}
+
+/** The `models` entry of a fix copied from an archived Royal Road chapter. */
+export const ARCHIVE_SOURCE = 'Royal Road';
+
+export function isArchiveFix(fix: QuoteFix | null | undefined): boolean {
+  return fix?.models.includes(ARCHIVE_SOURCE) ?? false;
+}
+
+/**
+ * Whether a chapter's fix is as good as it gets: the archived original, or a finished AI fix
+ * when the novel has no Royal Road link to try first.
+ */
+export function isSettledFix(fix: QuoteFix | null | undefined, linked: boolean): boolean {
+  return isCurrentFix(fix) && (isArchiveFix(fix) || (fix.complete && !linked));
+}
+
+async function novelOf(url: string): Promise<{ novel?: Novel; title?: string }> {
+  const chapter = await db.chapters.get(url);
+  return { novel: chapter && (await db.novels.get(chapter.novelId)), title: chapter?.title };
 }
 
 export interface FixState {
@@ -44,17 +66,52 @@ export function useFixState(url: string | undefined): FixState | undefined {
   return useSyncExternalStore(subscribe, () => (url ? states.get(url) : undefined));
 }
 
-async function run(url: string): Promise<void> {
+async function run(url: string, ai: boolean): Promise<void> {
   setState(url, { running: true, done: 0, total: 0 });
   try {
-    const providers = aiProviders();
-    if (!providers.length) throw new Error('Add a free Groq key in Settings first.');
     const content = await db.contents.get(url);
     if (!content) throw new Error('Download this chapter first.');
     const stored = await db.fixes.get(url);
+    const { novel, title } = await novelOf(url);
+    const linked = novel?.royalRoadUrl !== undefined;
+    if (isSettledFix(stored, linked)) {
+      setState(url, { running: false, done: 0, total: 0 });
+      return;
+    }
+
+    // The archived Royal Road chapter, when there is one, has every quote exactly.
+    const original =
+      novel && linked ? await archivedText(novel, content.title || title || '') : undefined;
+    if (original) {
+      const { paragraphs, missed } = transferQuotes(
+        readableParagraphs(content.title, content.paragraphs),
+        original,
+      );
+      await db.fixes.put({
+        url,
+        paragraphs,
+        missed,
+        through: content.paragraphs.length - 1,
+        complete: true,
+        models: [ARCHIVE_SOURCE],
+        version: FIX_VERSION,
+        createdAt: Date.now(),
+      });
+      setState(url, { running: false, done: 1, total: 1 });
+      return;
+    }
     if (isCurrentFix(stored) && stored.complete) {
       setState(url, { running: false, done: 0, total: 0 });
       return;
+    }
+
+    const providers = ai ? aiProviders() : [];
+    if (!providers.length) {
+      throw new Error(
+        linked
+          ? 'The Internet Archive has no copy of this chapter.'
+          : 'Link the novel to Royal Road, or add a free AI key in Settings.',
+      );
     }
     // A fix the free limit cut short carries on where it stopped.
     const fix: QuoteFix =
@@ -95,11 +152,15 @@ async function run(url: string): Promise<void> {
   }
 }
 
-/** Restores a stored chapter's quotes with AI, saving after each request. */
-export function fixChapter(url: string): Promise<void> {
+/**
+ * Restores a stored chapter's quotes: from the archived Royal Road chapter when the novel is
+ * linked and the Archive has it, otherwise with AI (when `ai` allows it), saving after each
+ * request.
+ */
+export function fixChapter(url: string, { ai = true }: { ai?: boolean } = {}): Promise<void> {
   const active = running.get(url);
   if (active) return active;
-  const task = run(url).finally(() => {
+  const task = run(url, ai).finally(() => {
     running.delete(url);
     lastFinished = Date.now();
   });
@@ -107,17 +168,29 @@ export function fixChapter(url: string): Promise<void> {
   return task;
 }
 
+/** Whether AI may fix chapters without being asked. */
+function aiAutoFix(): boolean {
+  return getAiSettings().aiAuto && aiProviders().length > 0;
+}
+
 async function fixIfNeeded(url: string): Promise<void> {
-  if (states.has(url) || !getAiSettings().auto || !aiProviders().length) return;
-  const [content, fix] = await Promise.all([db.contents.get(url), db.fixes.get(url)]);
-  if (!content || (isCurrentFix(fix) && fix.complete)) return;
+  if (states.has(url)) return;
+  const [content, fix, { novel }] = await Promise.all([
+    db.contents.get(url),
+    db.fixes.get(url),
+    novelOf(url),
+  ]);
+  const linked = novel?.royalRoadUrl !== undefined;
+  const ai = aiAutoFix();
+  if (!content || (!linked && !ai) || isSettledFix(fix, linked)) return;
   const paragraphs = readableParagraphs(content.title, content.paragraphs);
-  if (analyseChapter(paragraphs).needsFix) await fixChapter(url);
+  if (analyseChapter(paragraphs).needsFix) await fixChapter(url, { ai });
 }
 
 /**
  * Automatic mode, for the chapter after the one being read: fixes it in the background if it's
- * stored and needs it, at most a chapter a minute. Returns a cancel function.
+ * stored and needs it (from Royal Road, or with AI when that's on), at most a chapter a minute.
+ * Returns a cancel function.
  */
 export function fixAhead(url: string): () => void {
   const wait = Math.max(5_000, lastFinished + 60_000 - Date.now());
