@@ -59,6 +59,9 @@ natively. Public repo, single user.
 - Fonts are bundled (offline): Literata (reading), Schibsted Grotesk (UI), Grenze (page titles).
 - The app draws edge to edge; use the `--safe-*` variables for system bars. The reader's text
   padding deliberately ignores the top inset (it changes when full-screen hides the bars).
+- No CSS scroll-driven animations (`animation-timeline: scroll()`): the phone's WebView runs them
+  on the main thread in step with the scroll, and fast scrolling missed frames. Follow the scroll
+  from script instead (`useScrollPercent` in the reader).
 - Never commit keystores, API keys or real chapter text.
 
 ## Current work

@@ -2,32 +2,17 @@
   min-height: 100dvh;
 }
 
-// Chapter progress along the top bar's lower edge, so it shows only with the bars. Driven by the
-// page scroll itself (no JavaScript).
+// Chapter progress along the top bar's lower edge, so it shows only with the bars. The width
+// comes from ProgressLine.
 .progress {
-  display: none;
-}
-
-@supports (animation-timeline: scroll()) {
-  .progress {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    display: block;
-    height: 2px;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: 0 50%;
-    animation: progress linear both;
-    animation-timeline: scroll(root);
-  }
-}
-
-@keyframes progress {
-  to {
-    transform: scaleX(1);
-  }
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  transform-origin: 0 50%;
+  transition: transform 150ms linear;
 }
 
 .top,
