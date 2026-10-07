@@ -1,0 +1,8 @@
+# Keep LF everywhere (Prettier and android/gradlew expect it), even with core.autocrlf on Windows.
+* text=auto eol=lf
+# Windows batch files need CRLF.
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+*.webp binary
+*.jpg binary
