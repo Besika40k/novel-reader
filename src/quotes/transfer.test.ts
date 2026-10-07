@@ -58,13 +58,17 @@ describe('transferQuotes', () => {
 
   it('aligns a paragraph the original words a little differently', () => {
     const result = transferQuotes(
-      paragraphs('Hold still, I say.', 'Stun one of them, I say, starting off to the left.', 'Go.'),
-      ['“Hold still,” I say.', '“Stun one of them,” I say, staring off to the left.', 'Go.'],
+      paragraphs(
+        'Hold still, I say.',
+        'Pick up the lantern, I say, starting off to the left.',
+        'Go.',
+      ),
+      ['“Hold still,” I say.', '“Pick up the lantern,” I say, staring off to the left.', 'Go.'],
     );
     expect(result).toEqual({
       paragraphs: {
         0: '"Hold still," I say.',
-        1: '"Stun one of them," I say, starting off to the left.',
+        1: '"Pick up the lantern," I say, starting off to the left.',
       },
       missed: [],
     });
