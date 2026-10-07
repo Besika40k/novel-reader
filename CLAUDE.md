@@ -62,10 +62,9 @@ natively. Public repo, single user.
 
 ## Current work
 
-- Branches waiting for the owner's merge and a phone test: `feat/branding` (name LN Jormungandr,
-  serpent icon and splash), `feat/reader-progress` (progress only with the reader's bars) and
-  `feat/archive-quotes` (quotes from archived Royal Road chapters). Next: thoughts unquoted and
-  telepathy in parentheses (see the doc's "Next").
+- Merged on 2026-10-07, waiting for a test on the phone: the LN Jormungandr name, serpent icon
+  and splash; progress shown only with the reader's bars; quotes from archived Royal Road
+  chapters. Next: thoughts unquoted and telepathy in parentheses (see the doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few
