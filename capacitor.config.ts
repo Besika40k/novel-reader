@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.github.besika40k.novelreader',
-  appName: 'Novel Reader',
+  appName: 'LN Jormungandr',
   webDir: 'dist',
   plugins: {
     SystemBars: {
