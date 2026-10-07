@@ -1,0 +1,91 @@
+.button {
+  @include pressable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: $tap;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.secondary {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--ink-soft);
+
+  &:active:not(:disabled) {
+    background: var(--surface-2);
+  }
+}
+
+.danger {
+  background: transparent;
+  color: var(--danger);
+}
+
+.block {
+  width: 100%;
+}
+
+.icon {
+  @include pressable;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: $tap;
+  height: $tap;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+
+  &:active:not(:disabled) {
+    background: var(--surface-2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}

@@ -1,0 +1,55 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade 160ms ease-out;
+  touch-action: none;
+}
+
+.panel {
+  position: relative;
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px calc(var(--gutter) + var(--safe-right)) calc(20px + var(--safe-bottom))
+    calc(var(--gutter) + var(--safe-left));
+  border-radius: 20px 20px 0 0;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: rise 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.handle {
+  width: 36px;
+  height: 4px;
+  margin: 0 auto 12px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.title {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(100%);
+  }
+}

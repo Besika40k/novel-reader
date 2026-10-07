@@ -1,0 +1,176 @@
+.reader {
+  min-height: 100dvh;
+}
+
+// Chapter progress, driven by the page scroll itself (no JavaScript).
+.progress {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .progress {
+    position: fixed;
+    top: var(--safe-top);
+    left: 0;
+    right: 0;
+    z-index: 45;
+    display: block;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.top,
+.bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(12px);
+  transition: transform 220ms ease;
+}
+
+.top {
+  top: 0;
+  min-height: calc(var(--bar-height) + var(--safe-top));
+  padding: var(--safe-top) calc(4px + var(--safe-right)) 0 calc(4px + var(--safe-left));
+  border-bottom: 1px solid var(--line);
+}
+
+.bottom {
+  bottom: 0;
+  justify-content: space-between;
+  min-height: calc(var(--bar-height) + var(--safe-bottom));
+  padding: 0 calc(8px + var(--safe-right)) var(--safe-bottom) calc(8px + var(--safe-left));
+  border-top: 1px solid var(--line);
+}
+
+.reader[data-chrome='false'] {
+  .top {
+    transform: translateY(-100%);
+  }
+
+  .bottom {
+    transform: translateY(100%);
+  }
+}
+
+.heading {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  line-height: 1.25;
+}
+
+.novelTitle,
+.chapterTitle {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.novelTitle {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.chapterTitle {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.toNovel {
+  @include pressable;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.article {
+  max-width: 42rem;
+  margin: 0 auto;
+  // The top padding deliberately ignores --safe-top: full-screen reading hides the status bar,
+  // which changes that inset, and text tied to it would jump each time the bars toggle. A fixed
+  // allowance covers the top bar plus any status bar.
+  padding: calc(var(--bar-height) + 60px) calc(22px + var(--safe-right))
+    calc(var(--safe-bottom) + var(--bar-height) + 40px) calc(22px + var(--safe-left));
+  font-family: var(--reader-font);
+  font-size: var(--reader-size);
+  line-height: var(--reader-leading);
+  overflow-wrap: break-word;
+
+  p {
+    margin: 0 0 0.9em;
+    white-space: pre-line;
+  }
+
+  b {
+    font-weight: 650;
+  }
+}
+
+.reader[data-justify='true'] .article p {
+  text-align: justify;
+  hyphens: auto;
+}
+
+.title {
+  margin: 0.4em 0 1.1em;
+  font-size: 1.3em;
+  font-weight: 650;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.status {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 48px 0;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.end {
+  display: grid;
+  gap: 8px;
+  margin-top: 2.5em;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.caughtUp {
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
