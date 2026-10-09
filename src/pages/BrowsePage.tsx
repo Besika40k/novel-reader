@@ -1,10 +1,10 @@
 import { useRef, useState, type FormEvent } from 'react';
-import { Link2, Search } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { ChevronRight, Link2, Search } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
 import { Button, Spinner } from '@/components/Button';
-import { Cover } from '@/components/Cover';
+import { NovelRow } from '@/components/NovelRow';
 import { TopBar } from '@/components/TopBar';
-import { ensureNovel, novelFromLink, novelPath } from '@/db/library';
+import { ensureNovel, novelFromLink, novelPath, sitePath } from '@/db/library';
 import { errorMessage } from '@/lib/async';
 import { usePageScroll } from '@/lib/scroll';
 import { sources } from '@/sources';
@@ -144,25 +144,38 @@ export function BrowsePage() {
             <ul className={styles.list}>
               {searched.results.map((result) => (
                 <li key={result.url}>
-                  <button
-                    type="button"
-                    className={styles.result}
-                    onClick={() => open(result)}
+                  <NovelRow
+                    novel={result}
+                    details={result.info}
+                    busy={opening === result.url}
                     disabled={opening !== undefined}
-                  >
-                    <Cover src={result.coverUrl} title={result.title} className={styles.thumb} />
-                    <span className={styles.resultText}>
-                      <span className={styles.resultTitle}>{result.title}</span>
-                      {result.info && <span className={styles.resultInfo}>{result.info}</span>}
-                    </span>
-                    {opening === result.url && <Spinner size={18} />}
-                  </button>
+                    onOpen={() => open(result)}
+                  />
                 </li>
               ))}
             </ul>
           )}
         </section>
       )}
+
+      <section className={styles.sites} aria-labelledby="sites">
+        <h2 id="sites" className={styles.label}>
+          Sites
+        </h2>
+        <ul className={styles.list}>
+          {sources
+            .filter((candidate) => candidate.lists.length > 0)
+            .map((candidate) => (
+              <li key={candidate.id}>
+                <Link to={sitePath(candidate.id)} className={styles.site}>
+                  <span className={styles.siteName}>{candidate.name}</span>
+                  <span className={styles.siteHost}>{candidate.hosts[0]}</span>
+                  <ChevronRight aria-hidden />
+                </Link>
+              </li>
+            ))}
+        </ul>
+      </section>
     </>
   );
 }

@@ -7,6 +7,7 @@ import { LibraryPage } from './pages/LibraryPage';
 import { NovelPage } from './pages/NovelPage';
 import { ReaderPage } from './pages/ReaderPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { SitePage } from './pages/SitePage';
 
 export function App() {
   return (
@@ -16,6 +17,7 @@ export function App() {
           <Route index element={<LibraryPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="browse" element={<BrowsePage />} />
+          <Route path="browse/:sourceId" element={<SitePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="novel/:novelId" element={<NovelPage />} />

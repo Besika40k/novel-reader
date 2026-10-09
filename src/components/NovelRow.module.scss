@@ -1,0 +1,43 @@
+.row {
+  @include pressable;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 10px calc(var(--gutter) + var(--safe-right)) 10px calc(var(--gutter) + var(--safe-left));
+  border: 0;
+  background: transparent;
+  text-align: left;
+
+  &:active:not(:disabled) {
+    transform: none;
+    background: var(--surface-2);
+  }
+
+  &:disabled {
+    cursor: progress;
+  }
+}
+
+.thumb {
+  flex: none;
+  width: 52px;
+}
+
+.text {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.title {
+  @include clamp-lines(2);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.details {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
