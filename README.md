@@ -1,4 +1,4 @@
-# novel-reader
+# LN Jormungandr
 
 A personal light-novel reader for Android. It keeps a library of novels from web-novel sites,
 downloads chapters for offline reading and cleans up the text the sites mangle. Built with
@@ -26,6 +26,17 @@ phone fetches pages itself.
 Long-press a chapter for more: mark it (and everything before it) read, or download or delete it.
 
 Supported sites: NovelPhoenix. Adding one is a single file (see below).
+
+## Install
+
+Download the newest `LN-Jormungandr-<version>.apk` from
+[Releases](https://github.com/Besika40k/novel-reader/releases) and open it on an Android phone
+(Android 7 or newer). Android asks once to allow installing apps from your browser or file
+manager. A newer version installs over the old one and keeps your library. Everything stays on
+the phone: no account, no server, no ads. It's a free hobby project for personal use.
+
+Versions: the last number goes up for visual changes, the middle one for new features, and the
+first one marks a stable release (1.0.0).
 
 ## Develop
 
