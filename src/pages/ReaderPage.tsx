@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { Capacitor, SystemBars } from '@capacitor/core';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, ChevronLeft, ChevronRight, Type } from 'lucide-react';
+import { ArrowLeft, ArrowUpToLine, ChevronLeft, ChevronRight, Type } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Inline } from '@/components/Inline';
@@ -29,7 +29,6 @@ import {
   setLastRead,
 } from '@/db/library';
 import { errorMessage } from '@/lib/async';
-import { inlineToText } from '@/lib/inline';
 import { readableParagraphs, type Paragraph } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
 import { fixAhead, fixChapter, isCurrentFix, isSettledFix, useFixState } from '@/quotes/fixer';
@@ -51,9 +50,6 @@ function scrollFraction(): number {
   const max = document.documentElement.scrollHeight - window.innerHeight;
   return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 1;
 }
-
-/** Words per minute behind "time left": a typical silent-reading pace. */
-const READING_SPEED = 250;
 
 const scrollPercent = () => Math.round(scrollFraction() * 100);
 
@@ -89,17 +85,6 @@ function ProgressLine() {
       style={{ transform: `scaleX(${percent / 100})` }}
       aria-hidden
     />
-  );
-}
-
-/** Percentage read and time left. */
-function ReadingMeter({ words }: { words: number }) {
-  const percent = useScrollPercent();
-  const minutes = Math.ceil((words * (100 - percent)) / 100 / READING_SPEED);
-  return (
-    <span className={styles.meter}>
-      {percent}%{minutes > 0 && ` · ${minutes} min left`}
-    </span>
   );
 }
 
@@ -171,15 +156,6 @@ export function ReaderPage() {
   const paragraphs = useMemo(
     () => (showOriginal ? readable : applyFixes(readable, needsFix, fix)),
     [readable, needsFix, fix, showOriginal],
-  );
-  const words = useMemo(
-    () =>
-      paragraphs.reduce(
-        (sum, paragraph) =>
-          sum + inlineToText(paragraph.markup).split(/\s+/).filter(Boolean).length,
-        0,
-      ),
-    [paragraphs],
   );
 
   // Load the text: from storage when downloaded, otherwise from the site (and keep it).
@@ -395,7 +371,13 @@ export function ReaderPage() {
           <ChevronLeft />
         </IconButton>
         <div className={styles.middle}>
-          {content && <ReadingMeter words={words} />}
+          <IconButton
+            label="Back to the top"
+            disabled={!content}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          >
+            <ArrowUpToLine />
+          </IconButton>
           <button type="button" className={styles.toNovel} onClick={goBack}>
             Chapter list
           </button>

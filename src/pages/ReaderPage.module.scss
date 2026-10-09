@@ -87,14 +87,6 @@
   min-width: 0;
 }
 
-.meter {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
 .toNovel {
   @include pressable;
   min-height: 40px;
