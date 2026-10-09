@@ -39,7 +39,12 @@ natively. Public repo, single user.
 - Preferences live in localStorage (`src/lib/prefs.ts`); the inline script in index.html reads the
   same key to set the theme before first paint.
 
-## Site notes (NovelPhoenix)
+## Site notes (NovelPhoenix, NovelFire)
+
+- Both run the same site template (LightNovelPub's), parsed once in `src/sources/lightnovelpub.ts`;
+  each site is a few lines of config. NovelFire has novels under `/book/` instead of `/novel/`,
+  numbered chapter-list page links instead of a range picker, and search returns at most five
+  novels.
 
 - Server-rendered; plain GET works behind Cloudflare. The chapter list is paginated at
   `/novel/<slug>/chapters?page=N` (100 per page); `getChapterList` only refetches pages that can

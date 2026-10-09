@@ -4,13 +4,8 @@ import chapterHtml from './__fixtures__/novelphoenix-chapter.html?raw';
 import chaptersHtml from './__fixtures__/novelphoenix-chapters.html?raw';
 import novelHtml from './__fixtures__/novelphoenix-novel.html?raw';
 import searchHtml from './__fixtures__/novelphoenix-search.html?raw';
-import {
-  novelphoenix,
-  parseChapter,
-  parseChapterPage,
-  parseNovel,
-  parseSearch,
-} from './novelphoenix';
+import { parseChapter, parseChapterPage, parseNovel, parseSearch } from './lightnovelpub';
+import { novelphoenix } from './novelphoenix';
 
 const { fetchDocument } = vi.hoisted(() => ({ fetchDocument: vi.fn() }));
 vi.mock('@/lib/http', () => ({ fetchDocument }));
