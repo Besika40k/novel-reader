@@ -3,6 +3,7 @@ import { ChevronRight, Link2, Search } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { Button, Spinner } from '@/components/Button';
 import { NovelRow } from '@/components/NovelRow';
+import { SiteLogo } from '@/components/SiteLogo';
 import { TopBar } from '@/components/TopBar';
 import { ensureNovel, novelFromLink, novelPath, sitePath } from '@/db/library';
 import { errorMessage } from '@/lib/async';
@@ -168,6 +169,7 @@ export function BrowsePage() {
             .map((candidate) => (
               <li key={candidate.id}>
                 <Link to={sitePath(candidate.id)} className={styles.site}>
+                  <SiteLogo source={candidate} />
                   <span className={styles.siteName}>{candidate.name}</span>
                   <span className={styles.siteHost}>{candidate.hosts[0]}</span>
                   <ChevronRight aria-hidden />

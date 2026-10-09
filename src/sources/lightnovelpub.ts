@@ -155,18 +155,20 @@ export interface TemplateSite {
   name: string;
   /** e.g. https://novelphoenix.com */
   base: string;
+  icon: string;
   /** The path segment before a novel's slug: "novel" for /novel/<slug>. */
   novelPath: string;
 }
 
 /** A source for a site on this template. */
-export function lightNovelPubSource({ id, name, base, novelPath }: TemplateSite): Source {
+export function lightNovelPubSource({ id, name, base, icon, novelPath }: TemplateSite): Source {
   const host = new URL(base).hostname;
   const hosts = [host, `www.${host}`];
   const novelPattern = new RegExp(`^/${novelPath}/([a-z0-9-]+)`, 'i');
   return {
     id,
     name,
+    icon,
     hosts,
 
     novelKey(url) {
