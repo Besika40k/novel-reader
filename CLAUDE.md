@@ -42,8 +42,10 @@ natively. Public repo, single user.
 ## Site notes (NovelPhoenix, NovelFire)
 
 - Both run the same site template (LightNovelPub's), parsed once in `src/sources/lightnovelpub.ts`;
-  each site is a few lines of config. NovelFire has novels under `/book/` instead of `/novel/` and numbered chapter-list page links instead of a range picker. Their ranking pages
-  (`/ranking/most-read`, `/ranking/ratings`) feed the site lists in Browse.
+  each site is a few lines of config. NovelFire has novels under `/book/` instead of `/novel/`
+  and numbered chapter-list page links instead of a range picker. Their ranking pages
+  (`/ranking/most-read`, `/ranking/ratings`) feed the site lists in Browse; their logos are
+  bundled in `src/assets/sites/`.
 - Server-rendered; plain GET works behind Cloudflare. The chapter list is paginated at
   `/novel/<slug>/chapters?page=N` (100 per page); `getChapterList` only refetches pages that can
   hold new chapters.
@@ -69,11 +71,12 @@ natively. Public repo, single user.
 
 ## Current work
 
-- 0.4.0 (2026-10-10): History tab; NovelFire as a second source; each site's Most read and Top
-  rated lists in Browse; downloads also fetch the quote fix from the Archive; a back-to-top button
-  in place of the reading meter; transient system bars, so the status bar hides with the reader's
-  bars; a squarer unread badge. Checked in the browser, not yet on the phone. Next: thoughts
-  unquoted and telepathy in parentheses (see the doc's "Next").
+- 0.5.0 (2026-10-10): swipe between library categories; library titles shrink a little to fit two
+  lines; site logos; search across all sites in Browse, each site's own search on its page; a rune
+  after each main tab's title (`Rune.tsx`); a faint rune pattern behind the tab pages
+  (`src/assets/rune-pattern.svg`, redrawn from the owner's reference image). 0.4.0 (History,
+  NovelFire, site lists, download fixes) is on the phone. Next: thoughts unquoted and telepathy in
+  parentheses (see the doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few
