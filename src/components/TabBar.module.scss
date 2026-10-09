@@ -13,7 +13,7 @@
     z-index: -1;
     background-color: var(--ink);
     opacity: var(--pattern-opacity);
-    mask: url('@/assets/rune-pattern.svg') 0 0 / 288px repeat;
+    mask: url('@/assets/rune-pattern.svg') 0 0 / 336px repeat;
     pointer-events: none;
   }
 }
