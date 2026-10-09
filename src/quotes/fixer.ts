@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { db, type Novel, type QuoteFix } from '@/db/db';
-import { errorMessage } from '@/lib/async';
+import { errorMessage, sleep } from '@/lib/async';
+import { HttpError } from '@/lib/http';
 import { readableParagraphs } from '@/lib/junk';
 import { chunkParagraphs, fixChunk } from './ai';
 import { archivedText } from './archive';
@@ -173,18 +174,54 @@ function aiAutoFix(): boolean {
   return getAiSettings().aiAuto && aiProviders().length > 0;
 }
 
-async function fixIfNeeded(url: string): Promise<void> {
-  if (states.has(url)) return;
+/** Whether a stored chapter needs a fix that automatic fixing can make, with AI or without. */
+async function wantsFix(url: string, ai: boolean): Promise<boolean> {
   const [content, fix, { novel }] = await Promise.all([
     db.contents.get(url),
     db.fixes.get(url),
     novelOf(url),
   ]);
   const linked = novel?.royalRoadUrl !== undefined;
+  if (!content || (!linked && !ai) || isSettledFix(fix, linked)) return false;
+  return analyseChapter(readableParagraphs(content.title, content.paragraphs)).needsFix;
+}
+
+async function fixIfNeeded(url: string): Promise<void> {
+  if (states.has(url)) return;
   const ai = aiAutoFix();
-  if (!content || (!linked && !ai) || isSettledFix(fix, linked)) return;
-  const paragraphs = readableParagraphs(content.title, content.paragraphs);
-  if (analyseChapter(paragraphs).needsFix) await fixChapter(url, { ai });
+  if (await wantsFix(url, ai)) await fixChapter(url, { ai });
+}
+
+// The Archive limits how fast one address may ask for pages, so downloads fetch the archived
+// chapters one at a time, a few seconds apart, and leave it alone for a while if it objects.
+const ARCHIVE_PAUSE_MS = 3_000;
+const ARCHIVE_REST_MS = 10 * 60_000;
+let archiveTurn: Promise<void> = Promise.resolve();
+let archiveRestUntil = 0;
+
+async function fixFromArchive(url: string): Promise<void> {
+  if (Date.now() < archiveRestUntil || !(await wantsFix(url, false))) return;
+  try {
+    await fixChapter(url, { ai: false });
+  } catch (error) {
+    if (error instanceof HttpError && error.status === 429) {
+      archiveRestUntil = Date.now() + ARCHIVE_REST_MS;
+    }
+    // Forget the attempt, so the reader tries again (with AI too, when that's on) once it's open.
+    setState(url, undefined);
+  }
+  await sleep(ARCHIVE_PAUSE_MS);
+}
+
+/**
+ * For the download queue: copies a newly downloaded chapter's quotes from the archived Royal Road
+ * chapter, when the novel is linked and the chapter needs it, so it reads right offline. Never
+ * fails: without a fix the chapter stays as downloaded.
+ */
+export function fixDownloaded(url: string): Promise<void> {
+  const turn = archiveTurn.then(() => fixFromArchive(url)).catch(() => undefined);
+  archiveTurn = turn;
+  return turn;
 }
 
 /**

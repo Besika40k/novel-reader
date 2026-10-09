@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { errorMessage, sleep } from '@/lib/async';
 import { loadChapterContent } from '@/db/library';
+import { fixDownloaded } from '@/quotes/fixer';
 import type { Chapter } from '@/db/db';
 
 export type JobState = 'queued' | 'running' | 'done' | 'failed';
@@ -56,6 +57,8 @@ async function work() {
     emit();
     try {
       await loadChapterContent(job.url);
+      // Its quote fix too, when the Archive has one, so the chapter reads right offline.
+      await fixDownloaded(job.url);
       job.state = 'done';
     } catch (error) {
       job.attempts += 1;
