@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="288" viewBox="0 0 288 288">
+<!-- Rune-like marks for the tab pages' background; generated, see the commit that added it. -->
+<defs>
+<path id="chevrons" d="M-7-1L0-8L7-1M-7 7L0 0L7 7"/>
+<path id="vees" d="M-6-10L0-5L6-10M-6-3L0 2L6-3M-6 4L0 9L6 4"/>
+<path id="vee" d="M-8-9L0 9L8-9"/>
+<path id="peak" d="M-8 9L0-9L8 9"/>
+<path id="cross" d="M-6-6L6 6M6-6L-6 6M0 -11h0M0 11h0"/>
+<path id="crosses" d="M-5-11L5-1M5-11L-5-1M-5 1L5 11M5 1L-5 11"/>
+<path id="stave" d="M0-11V11"/>
+<path id="dagger" d="M0-11V11M-6-5H6"/>
+<path id="bars" d="M0-11V11M-6-4H6M-6 3H6"/>
+<path id="dots" d="M0 -8h0M0 0h0M0 8h0"/>
+<path id="diamond" d="M0-8L7 0L0 8L-7 0ZM0 0h0"/>
+<path id="arrow" d="M0 11V-10M-6-4L0-10L6-4"/>
+<path id="zigzag" d="M-9 5L-4.5-5L0 5L4.5-5L9 5"/>
+<path id="peakDot" d="M-7 2L0-6L7 2M0 8h0"/>
+<path id="staveCross" d="M0-11V11M-7-7L7 7M7-7L-7 7"/>
+<path id="veeDot" d="M-7-2L0 6L7-2M0 -9h0"/>
+<path id="twoDots" d="M0 -5h0M0 5h0"/>
+<path id="peaks" d="M-7 1L0-6L7 1M-7 9L0 2L7 9M-7-7L0-14L7-7"/>
+</defs>
+<g fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+<use href="#twoDots" transform="translate(17.0 19.5) rotate(1) scale(0.68)"/>
+<use href="#peakDot" transform="translate(53.9 18.5) rotate(-4) scale(0.64)"/>
+<use href="#dagger" transform="translate(90.8 16.9) rotate(1) scale(0.69)"/>
+<use href="#stave" transform="translate(126.4 18.2) rotate(-2) scale(0.70)"/>
+<use href="#twoDots" transform="translate(161.4 17.8) rotate(2) scale(0.62)"/>
+<use href="#bars" transform="translate(198.1 18.3) rotate(-1) scale(0.68)"/>
+<use href="#vee" transform="translate(232.6 16.7) rotate(-3) scale(0.70)"/>
+<use href="#cross" transform="translate(269.8 17.9) rotate(4) scale(0.62)"/>
+<use href="#peaks" transform="translate(17.2 53.6) rotate(2) scale(0.71)"/>
+<use href="#dots" transform="translate(52.1 53.6) rotate(1) scale(0.66)"/>
+<use href="#vees" transform="translate(90.9 55.6) rotate(0) scale(0.63)"/>
+<use href="#dots" transform="translate(127.7 54.1) rotate(-2) scale(0.70)"/>
+<use href="#stave" transform="translate(161.1 52.6) rotate(5) scale(0.64)"/>
+<use href="#vee" transform="translate(199.9 53.1) rotate(-2) scale(0.65)"/>
+<use href="#peaks" transform="translate(232.2 55.4) rotate(-1) scale(0.63)"/>
+<use href="#stave" transform="translate(269.4 53.9) rotate(1) scale(0.71)"/>
+<use href="#peak" transform="translate(19.0 91.6) rotate(2) scale(0.69)"/>
+<use href="#cross" transform="translate(53.8 91.8) rotate(1) scale(0.66)"/>
+<use href="#arrow" transform="translate(90.9 90.9) rotate(1) scale(0.65)"/>
+<use href="#diamond" transform="translate(126.8 89.5) rotate(2) scale(0.72)"/>
+<use href="#crosses" transform="translate(163.0 91.3) rotate(1) scale(0.70)"/>
+<use href="#diamond" transform="translate(197.8 88.8) rotate(0) scale(0.64)"/>
+<use href="#arrow" transform="translate(234.4 88.4) rotate(-3) scale(0.63)"/>
+<use href="#dots" transform="translate(270.1 88.8) rotate(-2) scale(0.72)"/>
+<use href="#chevrons" transform="translate(16.4 127.3) rotate(1) scale(0.68)"/>
+<use href="#peaks" transform="translate(55.3 126.3) rotate(-2) scale(0.64)"/>
+<use href="#vee" transform="translate(91.4 127.2) rotate(3) scale(0.70)"/>
+<use href="#bars" transform="translate(125.0 127.5) rotate(0) scale(0.70)"/>
+<use href="#dagger" transform="translate(162.8 127.2) rotate(3) scale(0.65)"/>
+<use href="#crosses" transform="translate(199.3 126.6) rotate(4) scale(0.62)"/>
+<use href="#staveCross" transform="translate(233.9 124.4) rotate(2) scale(0.66)"/>
+<use href="#peakDot" transform="translate(270.6 127.0) rotate(2) scale(0.71)"/>
+<use href="#stave" transform="translate(16.5 162.0) rotate(2) scale(0.69)"/>
+<use href="#cross" transform="translate(52.0 163.4) rotate(1) scale(0.65)"/>
+<use href="#zigzag" transform="translate(91.8 160.2) rotate(3) scale(0.68)"/>
+<use href="#vees" transform="translate(125.9 163.9) rotate(3) scale(0.71)"/>
+<use href="#cross" transform="translate(163.1 163.5) rotate(-4) scale(0.72)"/>
+<use href="#dagger" transform="translate(196.1 164.0) rotate(2) scale(0.65)"/>
+<use href="#stave" transform="translate(234.3 161.9) rotate(4) scale(0.71)"/>
+<use href="#diamond" transform="translate(270.2 161.0) rotate(-3) scale(0.68)"/>
+<use href="#dots" transform="translate(19.8 199.9) rotate(-1) scale(0.69)"/>
+<use href="#chevrons" transform="translate(54.6 196.1) rotate(-1) scale(0.67)"/>
+<use href="#dots" transform="translate(88.3 196.8) rotate(-1) scale(0.65)"/>
+<use href="#cross" transform="translate(125.2 200.0) rotate(5) scale(0.66)"/>
+<use href="#twoDots" transform="translate(163.5 197.6) rotate(0) scale(0.68)"/>
+<use href="#zigzag" transform="translate(196.8 198.6) rotate(-2) scale(0.66)"/>
+<use href="#peaks" transform="translate(234.4 199.8) rotate(-2) scale(0.68)"/>
+<use href="#dagger" transform="translate(270.3 198.7) rotate(3) scale(0.71)"/>
+<use href="#peaks" transform="translate(18.2 235.7) rotate(-1) scale(0.66)"/>
+<use href="#twoDots" transform="translate(55.8 233.0) rotate(-3) scale(0.66)"/>
+<use href="#chevrons" transform="translate(90.2 233.9) rotate(-4) scale(0.68)"/>
+<use href="#veeDot" transform="translate(125.5 233.4) rotate(3) scale(0.63)"/>
+<use href="#diamond" transform="translate(160.2 235.3) rotate(1) scale(0.69)"/>
+<use href="#stave" transform="translate(199.3 235.8) rotate(2) scale(0.69)"/>
+<use href="#peakDot" transform="translate(234.4 232.1) rotate(4) scale(0.69)"/>
+<use href="#zigzag" transform="translate(270.3 233.1) rotate(-3) scale(0.69)"/>
+<use href="#dots" transform="translate(17.6 271.5) rotate(1) scale(0.70)"/>
+<use href="#dagger" transform="translate(53.5 268.7) rotate(1) scale(0.66)"/>
+<use href="#stave" transform="translate(90.4 270.5) rotate(-2) scale(0.68)"/>
+<use href="#peakDot" transform="translate(124.1 270.0) rotate(3) scale(0.68)"/>
+<use href="#vee" transform="translate(163.3 269.5) rotate(-1) scale(0.72)"/>
+<use href="#peaks" transform="translate(199.2 271.0) rotate(-1) scale(0.65)"/>
+<use href="#bars" transform="translate(235.2 269.0) rotate(4) scale(0.64)"/>
+<use href="#peakDot" transform="translate(269.6 271.9) rotate(-2) scale(0.63)"/>
+</g>
+</svg>

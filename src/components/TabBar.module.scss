@@ -1,6 +1,21 @@
 .page {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom) + 24px);
+
+  // The rune pattern behind the tab pages, tinted with the theme's ink. Fixed, so scrolling
+  // doesn't repaint it. The reader and novel pages are outside the tabs and stay plain.
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--ink);
+    opacity: var(--pattern-opacity);
+    mask: url('@/assets/rune-pattern.svg') 0 0 / 288px repeat;
+    pointer-events: none;
+  }
 }
 
 .bar {
