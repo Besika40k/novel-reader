@@ -2,7 +2,15 @@ import { Dexie } from 'dexie';
 import { fetchDataUrl } from '@/lib/http';
 import { getSource, sourceForUrl } from '@/sources';
 import type { ChapterRef, NovelSummary, Source } from '@/sources/types';
-import { chaptersOf, db, type Chapter, type ChapterContent, type Novel } from './db';
+import {
+  chaptersOf,
+  db,
+  localDay,
+  type Chapter,
+  type ChapterContent,
+  type HistoryEntry,
+  type Novel,
+} from './db';
 
 export function novelPath(id: string): string {
   return `/novel/${encodeURIComponent(id)}`;
@@ -199,8 +207,55 @@ export async function markRead(urls: string[], read: boolean): Promise<void> {
     .modify(read ? { read: 1 } : { read: 0, progress: 0 });
 }
 
+/** How long reading history is kept; the History tab shows the last week of it. */
+const HISTORY_KEPT_MS = 30 * 24 * 60 * 60 * 1000;
+
 export async function setLastRead(novelId: string, chapterUrl: string): Promise<void> {
-  await db.novels.update(novelId, { lastReadUrl: chapterUrl, lastReadAt: Date.now() });
+  const now = Date.now();
+  const day = localDay(now);
+  await db.transaction('rw', db.novels, db.history, async () => {
+    await db.novels.update(novelId, { lastReadUrl: chapterUrl, lastReadAt: now });
+    await db.history.put({ id: `${day}|${novelId}`, novelId, day, chapterUrl, readAt: now });
+    await db.history
+      .where('readAt')
+      .below(now - HISTORY_KEPT_MS)
+      .delete();
+  });
+}
+
+export interface HistoryItem extends HistoryEntry {
+  novel: Novel;
+  chapter?: Chapter;
+}
+
+/** What was read in the last `days` days, newest first: per day, each novel's last chapter. */
+export async function recentHistory(days: number): Promise<HistoryItem[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+  const entries = await db.history
+    .where('readAt')
+    .aboveOrEqual(since.getTime())
+    .reverse()
+    .toArray();
+  const [novels, chapters] = await Promise.all([
+    db.novels.bulkGet(entries.map((entry) => entry.novelId)),
+    db.chapters.bulkGet(entries.map((entry) => entry.chapterUrl)),
+  ]);
+  return entries.flatMap((entry, i) => {
+    const novel = novels[i];
+    return novel ? [{ ...entry, novel, chapter: chapters[i] }] : [];
+  });
+}
+
+/** Where to pick a novel up again: the "continue" chapter, or the novel page without one. */
+export async function resumePath(novelId: string): Promise<string> {
+  const [novel, chapters] = await Promise.all([
+    db.novels.get(novelId),
+    chaptersOf(novelId).toArray(),
+  ]);
+  const chapter = continueChapter(chapters, novel?.lastReadUrl);
+  return chapter ? readerPath(novelId, chapter.index) : novelPath(novelId);
 }
 
 export async function neighbour(

@@ -77,6 +77,24 @@ export interface QuoteFix {
   createdAt: number;
 }
 
+/** A novel read on a day, with the last chapter opened that day. */
+export interface HistoryEntry {
+  /** `${day}|${novelId}`, so a day keeps one entry per novel. */
+  id: string;
+  novelId: string;
+  /** The local date, YYYY-MM-DD. */
+  day: string;
+  chapterUrl: string;
+  readAt: number;
+}
+
+/** The local date of a time, as YYYY-MM-DD. */
+export function localDay(time: number): string {
+  const date = new Date(time);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export const db = new Dexie('novel-reader') as Dexie & {
   novels: EntityTable<Novel, 'id'>;
   chapters: EntityTable<Chapter, 'url'>;
@@ -84,6 +102,7 @@ export const db = new Dexie('novel-reader') as Dexie & {
   categories: EntityTable<Category, 'id'>;
   fixes: EntityTable<QuoteFix, 'url'>;
   archives: EntityTable<ArchiveIndex, 'novelId'>;
+  history: EntityTable<HistoryEntry, 'id'>;
 };
 
 db.version(1).stores({
@@ -94,6 +113,26 @@ db.version(1).stores({
 });
 db.version(2).stores({ fixes: 'url' });
 db.version(3).stores({ archives: 'novelId' });
+db.version(4)
+  .stores({ history: 'id, readAt' })
+  .upgrade(async (tx) => {
+    // Start the history with the last chapter each novel was read at.
+    const novels: Novel[] = await tx.table('novels').toArray();
+    const entries = novels.flatMap((novel): HistoryEntry[] => {
+      if (!novel.lastReadUrl || !novel.lastReadAt) return [];
+      const day = localDay(novel.lastReadAt);
+      return [
+        {
+          id: `${day}|${novel.id}`,
+          novelId: novel.id,
+          day,
+          chapterUrl: novel.lastReadUrl,
+          readAt: novel.lastReadAt,
+        },
+      ];
+    });
+    await tx.table('history').bulkPut(entries);
+  });
 
 db.on('populate', async (tx) => {
   await tx
