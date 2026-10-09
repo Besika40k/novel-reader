@@ -53,6 +53,30 @@ export function parseSearch(doc: Document, pageUrl: string): NovelSummary[] {
   });
 }
 
+/** A ranking page: 100 novels with their status and the ranking's own figure. */
+export function parseRanking(doc: Document, pageUrl: string): NovelSummary[] {
+  const items = Array.from(doc.querySelectorAll('li.novel-item')).filter(
+    (item) => !item.closest('.popular-novels, aside'),
+  );
+  return items.flatMap((item): NovelSummary[] => {
+    const link = item.querySelector('.title a[href], a[href]');
+    const url = absoluteUrl(link?.getAttribute('href'), pageUrl);
+    if (!url) return [];
+    const rating = Number(item.querySelector('[data-rating]')?.getAttribute('data-rating'));
+    const reads = /^([\d.,]+[KMB]?)\s+reads/i.exec(cleanText(item.querySelector('.numberOf')));
+    return [
+      {
+        url,
+        title: cleanText(item.querySelector('.title')) || link?.getAttribute('title') || url,
+        coverUrl: imageUrl(item.querySelector('img'), pageUrl),
+        status: cleanText(item.querySelector('.status')) || undefined,
+        rating: rating > 0 ? rating : undefined,
+        monthlyReads: reads?.[1],
+      },
+    ];
+  });
+}
+
 export function parseNovel(doc: Document, pageUrl: string): NovelDetails {
   const title = cleanText(doc.querySelector('.novel-info .novel-title, h1.novel-title'));
   if (!title) throw new SourceError('Could not find the novel on this page.');
@@ -186,6 +210,16 @@ export function lightNovelPubSource({ id, name, base, novelPath }: TemplateSite)
 
     async getChapter(url, signal) {
       return parseChapter(await fetchDocument(url, signal));
+    },
+
+    lists: [
+      { id: 'most-read', name: 'Most read' },
+      { id: 'ratings', name: 'Top rated' },
+    ],
+
+    async getList(listId, signal) {
+      const url = `${base}/ranking/${listId}`;
+      return parseRanking(await fetchDocument(url, signal), url);
     },
   };
 }

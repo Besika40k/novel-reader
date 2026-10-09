@@ -5,6 +5,17 @@ export interface NovelSummary {
   coverUrl?: string;
   /** One short extra line, e.g. "910 Chapters". */
   info?: string;
+  /** What a site's lists show, when they show it. */
+  status?: string;
+  rating?: number;
+  /** Reads in the last month, as the site writes it, e.g. "305.4K". */
+  monthlyReads?: string;
+}
+
+/** One of a site's own lists of novels, e.g. its most read. */
+export interface NovelList {
+  id: string;
+  name: string;
 }
 
 export interface NovelDetails {
@@ -59,6 +70,9 @@ export interface Source {
   /** May return only the end of the list when knownCount allows it; callers merge by URL. */
   getChapterList(novelUrl: string, options: ChapterListOptions): Promise<ChapterRef[]>;
   getChapter(url: string, signal?: AbortSignal): Promise<ChapterText>;
+  /** The site's lists of novels to browse without searching; empty when it has none. */
+  lists: NovelList[];
+  getList(listId: string, signal?: AbortSignal): Promise<NovelSummary[]>;
 }
 
 /** The page loaded but didn't contain what the parser expected, usually after a site redesign. */

@@ -16,6 +16,11 @@ export function novelPath(id: string): string {
   return `/novel/${encodeURIComponent(id)}`;
 }
 
+/** A site's own lists of novels, in Browse. */
+export function sitePath(sourceId: string): string {
+  return `/browse/${encodeURIComponent(sourceId)}`;
+}
+
 export function readerPath(novelId: string, index: number): string {
   return `/read/${encodeURIComponent(novelId)}/${index}`;
 }

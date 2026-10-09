@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { parseHtml } from '@/lib/html';
 import chaptersHtml from './__fixtures__/novelfire-chapters.html?raw';
-import { parseChapterPage } from './lightnovelpub';
+import rankingHtml from './__fixtures__/novelfire-ranking.html?raw';
+import { parseChapterPage, parseRanking } from './lightnovelpub';
 import { novelfire } from './novelfire';
 
 const { fetchDocument } = vi.hoisted(() => ({ fetchDocument: vi.fn() }));
@@ -46,5 +47,29 @@ describe('getChapterList', () => {
     const pages = fetchDocument.mock.calls.map(([url]) => url as string);
     expect(pages[0]).toBe(`${NOVEL}/chapters?page=1`);
     expect(pages).toHaveLength(10);
+  });
+});
+
+describe('parseRanking', () => {
+  it('reads each novel with its status and the ranking figure', () => {
+    const url = 'https://novelfire.net/ranking/most-read';
+    expect(parseRanking(parseHtml(rankingHtml), url)).toEqual([
+      {
+        url: NOVEL,
+        title: 'The Salt Cartographer',
+        coverUrl: 'https://novelfire.net/server-1/the-salt-cartographer.jpg',
+        status: 'Ongoing',
+        rating: undefined,
+        monthlyReads: '305.4K',
+      },
+      {
+        url: 'https://novelfire.net/book/lantern-hours',
+        title: 'Lantern Hours',
+        coverUrl: 'https://novelfire.net/server-2/lantern-hours.jpg',
+        status: 'Completed',
+        rating: 4.8,
+        monthlyReads: undefined,
+      },
+    ]);
   });
 });

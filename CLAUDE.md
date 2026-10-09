@@ -45,7 +45,6 @@ natively. Public repo, single user.
   each site is a few lines of config. NovelFire has novels under `/book/` instead of `/novel/`,
   numbered chapter-list page links instead of a range picker, and search returns at most five
   novels.
-
 - Server-rendered; plain GET works behind Cloudflare. The chapter list is paginated at
   `/novel/<slug>/chapters?page=N` (100 per page); `getChapterList` only refetches pages that can
   hold new chapters.
@@ -71,11 +70,11 @@ natively. Public repo, single user.
 
 ## Current work
 
-- 0.3.0 (2026-10-09): the LN Jormungandr name, serpent icon and splash; progress shown only with
-  the reader's bars; quotes from archived Royal Road chapters; smooth fast scrolling. All checked
-  on the phone. Next: the owner's list of reader fixes, a History tab, and NovelFire as a second
-  source with a browsable catalogue; later, thoughts unquoted and telepathy in parentheses (see
-  the doc's "Next").
+- 0.4.0 (2026-10-10): History tab; NovelFire as a second source; each site's Most read and Top
+  rated lists in Browse; downloads also fetch the quote fix from the Archive; a back-to-top button
+  in place of the reading meter; transient system bars, so the status bar hides with the reader's
+  bars; a squarer unread badge. Checked in the browser, not yet on the phone. Next: thoughts
+  unquoted and telepathy in parentheses (see the doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few

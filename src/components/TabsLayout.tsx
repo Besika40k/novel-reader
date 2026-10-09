@@ -22,7 +22,7 @@ export function TabsLayout() {
           <NavLink
             key={to}
             to={to}
-            end
+            end={to === '/'}
             className={({ isActive }) =>
               [styles.tab, isActive && styles.active].filter(Boolean).join(' ')
             }

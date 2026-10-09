@@ -1,0 +1,39 @@
+.lists {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 calc(var(--gutter) + var(--safe-right)) 8px calc(var(--gutter) + var(--safe-left));
+}
+
+.list {
+  @include pressable;
+  flex: none;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  &[aria-pressed='true'] {
+    border-color: var(--accent);
+    color: var(--ink);
+  }
+}
+
+.status {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 48px var(--gutter);
+  color: var(--muted);
+  text-align: center;
+}
+
+.novels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
