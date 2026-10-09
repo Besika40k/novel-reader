@@ -1,3 +1,13 @@
+// Fills the screen below the top bar, so a swipe anywhere switches categories.
+.swipeArea {
+  min-height: calc(
+    100dvh - var(--bar-height) - var(--safe-top) - var(--tabbar-height) - var(--safe-bottom) - 24px
+  );
+  // A category sliding in starts a little off to the side. Clipped, it can't make the page wider
+  // than the screen, which would push the fixed tab bar down until the slide ends.
+  overflow-x: clip;
+}
+
 .tabs {
   display: flex;
   gap: 4px;
@@ -116,4 +126,29 @@
   padding: 48px var(--gutter);
   color: var(--muted);
   text-align: center;
+}
+
+.grid,
+.note {
+  &[data-enter='next'] {
+    animation: enter-from-right 220ms ease-out;
+  }
+
+  &[data-enter='previous'] {
+    animation: enter-from-left 220ms ease-out;
+  }
+}
+
+@keyframes enter-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+}
+
+@keyframes enter-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
 }
