@@ -32,7 +32,7 @@ export function BrowsePage() {
 
   return (
     <>
-      <TopBar display title="Browse" />
+      <TopBar display title="Browse" rune="raidho" />
 
       <SearchForm search={search} label="Search across sites" />
 

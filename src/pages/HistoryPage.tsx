@@ -38,7 +38,7 @@ export function HistoryPage() {
 
   return (
     <>
-      <TopBar display title="History" />
+      <TopBar display title="History" rune="dagaz" />
       {items === undefined ? null : items.length === 0 ? (
         <p className={styles.note}>Chapters you read in the last week show up here.</p>
       ) : (
