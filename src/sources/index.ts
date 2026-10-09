@@ -1,8 +1,9 @@
+import { novelfire } from './novelfire';
 import { novelphoenix } from './novelphoenix';
 import type { Source } from './types';
 
 /** Every supported site. Add new sources here. */
-export const sources: Source[] = [novelphoenix];
+export const sources: Source[] = [novelphoenix, novelfire];
 
 export function getSource(id: string): Source {
   const source = sources.find((candidate) => candidate.id === id);
