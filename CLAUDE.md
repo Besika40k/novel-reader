@@ -66,13 +66,27 @@ natively. Public repo, single user.
 
 ## Current work
 
-- Merged on 2026-10-07, waiting for a test on the phone: the LN Jormungandr name, serpent icon
-  and splash; progress shown only with the reader's bars; quotes from archived Royal Road
-  chapters. Next: thoughts unquoted and telepathy in parentheses (see the doc's "Next").
+- 0.3.0 (2026-10-09): the LN Jormungandr name, serpent icon and splash; progress shown only with
+  the reader's bars; quotes from archived Royal Road chapters; smooth fast scrolling. All checked
+  on the phone. Next: the owner's list of reader fixes, a History tab, and NovelFire as a second
+  source with a browsable catalogue; later, thoughts unquoted and telepathy in parentheses (see
+  the doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few
   screenshots.
+
+## Releases
+
+- The version lives only in `package.json` (`npm version <x.y.z> --no-git-tag-version`). Gradle
+  derives versionName and versionCode from it, and Settings shows it. The owner's scheme: patch
+  for visual changes, minor for features, major for a stable release (1.0.0).
+- Bump the version on the change's topic branch. After merging: `npm run sync`, then
+  `./gradlew assembleDebug` in `android/`; tag `vX.Y.Z` on main and push the tag; publish a
+  GitHub release `vX.Y.Z` with short notes and the APK attached as `LN-Jormungandr-X.Y.Z.apk`.
+- Release APKs are debug builds signed with this PC's `~/.android/debug.keystore`, the key of the
+  owner's install, so updates keep the library. A few friends may install them; personal use,
+  not on any store, never commercial.
 
 ## Git
 
