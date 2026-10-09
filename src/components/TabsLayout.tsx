@@ -1,10 +1,11 @@
-import { Compass, LibraryBig, Settings } from 'lucide-react';
+import { Compass, History, LibraryBig, Settings } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router';
 import { DownloadStatus } from './DownloadStatus';
 import styles from './TabBar.module.scss';
 
 const TABS = [
   { to: '/', label: 'Library', Icon: LibraryBig },
+  { to: '/history', label: 'History', Icon: History },
   { to: '/browse', label: 'Browse', Icon: Compass },
   { to: '/settings', label: 'Settings', Icon: Settings },
 ];

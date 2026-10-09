@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { TabsLayout } from './components/TabsLayout';
 import { Toast } from './components/Toast';
 import { BrowsePage } from './pages/BrowsePage';
+import { HistoryPage } from './pages/HistoryPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { NovelPage } from './pages/NovelPage';
 import { ReaderPage } from './pages/ReaderPage';
@@ -13,6 +14,7 @@ export function App() {
       <Routes>
         <Route element={<TabsLayout />}>
           <Route index element={<LibraryPage />} />
+          <Route path="history" element={<HistoryPage />} />
           <Route path="browse" element={<BrowsePage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
