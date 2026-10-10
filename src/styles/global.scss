@@ -94,6 +94,12 @@
   --tabbar-height: 62px;
   --gutter: 16px;
   --radius: 12px;
+  // Rating stars by band (4.5+, 4+, 3+, 2+, below 2): muted mid tones that read on every theme.
+  --rating-5: #b8954a;
+  --rating-4: #7f9a6a;
+  --rating-3: #6f8fa3;
+  --rating-2: #9a8a78;
+  --rating-1: #a8807b;
   // How strongly the rune pattern shows behind the tab pages.
   --pattern-opacity: 0.05;
 }

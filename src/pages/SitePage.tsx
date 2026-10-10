@@ -38,14 +38,26 @@ function figuresByUrl(lists: Record<string, NovelSummary[]>): Map<string, Figure
   return figures;
 }
 
-function describe({ status, rating, monthlyReads }: Figures): string {
-  return [
+/** The star's colour band: 5 for 4.5 and up, 4 from 4, 3 from 3, 2 from 2, 1 below. */
+function ratingBand(rating: number): number {
+  if (rating >= 4.5) return 5;
+  return Math.max(1, Math.min(4, Math.floor(rating)));
+}
+
+function describe({ status, rating, monthlyReads }: Figures) {
+  const parts = [
     status,
-    rating !== undefined && `★ ${rating.toFixed(1)}`,
+    rating !== undefined && (
+      <span key="rating">
+        <span className={styles.star} data-band={ratingBand(rating)}>
+          ★
+        </span>{' '}
+        {rating.toFixed(1)}
+      </span>
+    ),
     monthlyReads && `${monthlyReads} reads a month`,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  ].filter(Boolean);
+  return parts.flatMap((part, i) => (i === 0 ? [part] : [' · ', part]));
 }
 
 function SiteLists({ source }: { source: Source }) {
