@@ -1,0 +1,33 @@
+.results {
+  margin-top: 16px;
+}
+
+.note {
+  padding: 32px var(--gutter);
+  color: var(--muted);
+  text-align: center;
+}
+
+.site + .site {
+  margin-top: 12px;
+}
+
+.siteName {
+  @include section-label;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px calc(var(--gutter) + var(--safe-right)) 4px calc(var(--gutter) + var(--safe-left));
+}
+
+.none {
+  padding: 6px calc(var(--gutter) + var(--safe-right)) 6px calc(var(--gutter) + var(--safe-left));
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

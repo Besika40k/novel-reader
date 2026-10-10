@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { Button, Spinner } from '@/components/Button';
 import { NovelRow } from '@/components/NovelRow';
+import { SearchForm, SearchResults } from '@/components/NovelSearch';
 import { SiteLogo } from '@/components/SiteLogo';
 import { TopBar } from '@/components/TopBar';
+import { useNovelSearch } from '@/components/useNovelSearch';
 import { ensureNovel, novelPath } from '@/db/library';
 import { errorMessage } from '@/lib/async';
 import { usePageScroll } from '@/lib/scroll';
@@ -60,6 +62,7 @@ function SiteLists({ source }: { source: Source }) {
   const [attempt, setAttempt] = useState(0);
   const [listId, setListId] = useState(() => shownList.get(source.id) ?? source.lists[0].id);
   const [opening, setOpening] = useState<string>();
+  const search = useNovelSearch(source.id, [source]);
   const novels = lists[listId];
   const error = errors[listId];
   const figures = useMemo(() => figuresByUrl(lists), [lists]);
@@ -117,6 +120,8 @@ function SiteLists({ source }: { source: Source }) {
         }
         back="/browse"
       />
+      <SearchForm search={search} label={`Search ${source.name}`} />
+      <SearchResults search={search} />
       <div className={styles.lists} role="group" aria-label="List">
         {source.lists.map((list) => (
           <button

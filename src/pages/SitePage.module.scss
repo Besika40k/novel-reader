@@ -8,6 +8,7 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  margin-top: 16px;
   padding: 0 calc(var(--gutter) + var(--safe-right)) 8px calc(var(--gutter) + var(--safe-left));
 }
 

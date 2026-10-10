@@ -1,0 +1,44 @@
+// A one-line form: icon, text field and button, as in Browse.
+.form {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin: 8px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: $tap;
+    padding: 0 12px 0 40px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 0.95rem;
+
+    &::placeholder {
+      color: var(--muted);
+    }
+
+    &:focus {
+      border-color: var(--ink-soft);
+      outline: none;
+    }
+  }
+}
+
+.fieldIcon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.error {
+  margin: 10px var(--gutter) 0;
+  color: var(--danger);
+  font-size: 0.88rem;
+}
