@@ -1,5 +1,6 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { parseHtml } from './html';
+import { sleep } from './async';
 
 /**
  * The mobile Chrome identity of requests from the dev proxy, so sites serve the markup the source
@@ -37,7 +38,27 @@ interface RawResponse {
   contentType: string;
 }
 
+// When a site says it's getting too many requests (429), wait and ask again: 3, 6, then 12 s.
+const RETRY_DELAYS_MS = [3_000, 6_000, 12_000];
+
 async function request(
+  url: string,
+  responseType: 'text' | 'blob',
+  signal?: AbortSignal,
+): Promise<RawResponse> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await requestOnce(url, responseType, signal);
+    } catch (error) {
+      const delay = RETRY_DELAYS_MS[attempt];
+      if (!(error instanceof HttpError) || error.status !== 429 || delay === undefined) throw error;
+      await sleep(delay);
+      signal?.throwIfAborted();
+    }
+  }
+}
+
+async function requestOnce(
   url: string,
   responseType: 'text' | 'blob',
   signal?: AbortSignal,

@@ -280,7 +280,9 @@ export function lightNovelPubSource({ id, name, base, icon, novelPath }: Templat
       const startPage = Math.max(2, Math.floor((knownCount - 1) / pageSize) + 1);
       const pages = [];
       for (let page = startPage; page <= first.pageCount; page++) pages.push(page);
-      const rest = await mapLimit(pages, 3, async (page) => {
+      // Two at a time: NovelFire answers 429 when a long list (37 pages for 3,700 chapters) is
+      // asked for three at a time.
+      const rest = await mapLimit(pages, 2, async (page) => {
         const url = pageUrl(page);
         return parseChapterPage(await fetchDocument(url, signal), url).chapters;
       });
