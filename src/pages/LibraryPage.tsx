@@ -4,6 +4,7 @@ import { Compass, RefreshCw } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Cover } from '@/components/Cover';
+import { FitText } from '@/components/FitText';
 import { TopBar } from '@/components/TopBar';
 import { db } from '@/db/db';
 import { libraryNovels, novelPath, updateLibrary } from '@/db/library';
@@ -171,7 +172,7 @@ export function LibraryPage() {
                       </span>
                     )}
                   </div>
-                  <span className={styles.title}>{novel.title}</span>
+                  <FitText text={novel.title} className={styles.title} />
                 </Link>
               </li>
             ))}
