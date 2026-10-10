@@ -233,6 +233,11 @@ export interface HistoryItem extends HistoryEntry {
   chapter?: Chapter;
 }
 
+/** Removes one day's entry for a novel from the history. */
+export async function deleteHistoryEntry(id: string): Promise<void> {
+  await db.history.delete(id);
+}
+
 /** What was read in the last `days` days, newest first: per day, each novel's last chapter. */
 export async function recentHistory(days: number): Promise<HistoryItem[]> {
   const since = new Date();

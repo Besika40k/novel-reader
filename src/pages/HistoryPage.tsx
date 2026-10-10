@@ -1,9 +1,10 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useNavigate } from 'react-router';
 import { Cover } from '@/components/Cover';
+import { SwipeToDelete } from '@/components/SwipeToDelete';
 import { TopBar } from '@/components/TopBar';
 import { localDay } from '@/db/db';
-import { recentHistory, resumePath, type HistoryItem } from '@/db/library';
+import { deleteHistoryEntry, recentHistory, resumePath, type HistoryItem } from '@/db/library';
 import { usePageScroll } from '@/lib/scroll';
 import styles from './HistoryPage.module.scss';
 
@@ -48,22 +49,24 @@ export function HistoryPage() {
             <ul className={styles.list}>
               {day.map((item) => (
                 <li key={item.id}>
-                  <button
-                    type="button"
-                    className={styles.entry}
-                    onClick={() => void resume(item.novelId)}
-                  >
-                    <Cover
-                      src={item.novel.coverData ?? item.novel.coverUrl}
-                      title={item.novel.title}
-                      className={styles.thumb}
-                    />
-                    <span className={styles.text}>
-                      <span className={styles.title}>{item.novel.title}</span>
-                      <span className={styles.chapter}>{item.chapter?.title}</span>
-                    </span>
-                    <span className={styles.time}>{clock.format(item.readAt)}</span>
-                  </button>
+                  <SwipeToDelete onDelete={() => void deleteHistoryEntry(item.id)}>
+                    <button
+                      type="button"
+                      className={styles.entry}
+                      onClick={() => void resume(item.novelId)}
+                    >
+                      <Cover
+                        src={item.novel.coverData ?? item.novel.coverUrl}
+                        title={item.novel.title}
+                        className={styles.thumb}
+                      />
+                      <span className={styles.text}>
+                        <span className={styles.title}>{item.novel.title}</span>
+                        <span className={styles.chapter}>{item.chapter?.title}</span>
+                      </span>
+                      <span className={styles.time}>{clock.format(item.readAt)}</span>
+                    </button>
+                  </SwipeToDelete>
                 </li>
               ))}
             </ul>
