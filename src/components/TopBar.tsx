@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { IconButton } from './Button';
+import { Rune, type RuneName } from './Rune';
 import styles from './TopBar.module.scss';
 
 interface TopBarProps {
@@ -11,9 +12,11 @@ interface TopBarProps {
   /** Large display title, for the main tabs. */
   display?: boolean;
   actions?: ReactNode;
+  /** A rune after a main tab's title. */
+  rune?: RuneName;
 }
 
-export function TopBar({ title, back, display, actions }: TopBarProps) {
+export function TopBar({ title, back, display, actions, rune }: TopBarProps) {
   const navigate = useNavigate();
   const goBack = () => {
     // React Router stores the history position in history.state.idx.
@@ -28,7 +31,10 @@ export function TopBar({ title, back, display, actions }: TopBarProps) {
           <ArrowLeft />
         </IconButton>
       )}
-      <h1 className={display ? styles.display : styles.title}>{title}</h1>
+      <h1 className={display ? styles.display : styles.title}>
+        {title}
+        {rune && <Rune name={rune} className={styles.rune} />}
+      </h1>
       {actions && <div className={styles.actions}>{actions}</div>}
     </header>
   );

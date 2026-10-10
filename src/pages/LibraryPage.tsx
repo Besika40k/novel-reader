@@ -106,6 +106,7 @@ export function LibraryPage() {
     <>
       <TopBar
         display
+        rune="ansuz"
         title="Library"
         actions={
           <IconButton

@@ -90,7 +90,7 @@ export function SettingsPage() {
 
   return (
     <>
-      <TopBar display title="Settings" />
+      <TopBar display title="Settings" rune="tiwaz" />
 
       <section className={styles.section}>
         <h2 className={styles.heading}>Reading</h2>

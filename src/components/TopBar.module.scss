@@ -32,6 +32,15 @@
   letter-spacing: 0.01em;
 }
 
+// Sits on the baseline and reaches about the height of the capitals.
+.rune {
+  width: auto;
+  height: 0.72em;
+  margin-left: 0.3em;
+  color: var(--muted);
+  vertical-align: baseline;
+}
+
 .actions {
   display: flex;
   align-items: center;
