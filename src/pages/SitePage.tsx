@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { Button, Spinner } from '@/components/Button';
+import { FilteredNovels } from '@/components/FilteredNovels';
 import { NovelRow } from '@/components/NovelRow';
 import { SearchForm, SearchResults } from '@/components/NovelSearch';
 import { SiteLogo } from '@/components/SiteLogo';
@@ -17,6 +18,9 @@ import styles from './SitePage.module.scss';
 const fetched = new Map<string, NovelSummary[]>();
 // The list last shown for each site.
 const shownList = new Map<string, string>();
+
+/** The chip after the site's own lists, for its advanced search. */
+const FILTER = 'filter';
 
 const listKey = (source: Source, listId: string) => `${source.id}/${listId}`;
 
@@ -78,7 +82,7 @@ function SiteLists({ source }: { source: Source }) {
   const novels = lists[listId];
   const error = errors[listId];
   const figures = useMemo(() => figuresByUrl(lists), [lists]);
-  usePageScroll(`site:${source.id}`, novels !== undefined);
+  usePageScroll(`site:${source.id}`, listId === FILTER || novels !== undefined);
 
   // Every list at once: they're one page each, and each adds its figure to the others' rows.
   useEffect(() => {
@@ -146,6 +150,16 @@ function SiteLists({ source }: { source: Source }) {
             {list.name}
           </button>
         ))}
+        {source.filter && (
+          <button
+            type="button"
+            className={styles.list}
+            aria-pressed={listId === FILTER}
+            onClick={() => show(FILTER)}
+          >
+            Filter
+          </button>
+        )}
       </div>
 
       {error ? (
@@ -155,6 +169,14 @@ function SiteLists({ source }: { source: Source }) {
             Try again
           </Button>
         </div>
+      ) : listId === FILTER && source.filter ? (
+        <FilteredNovels
+          siteId={source.id}
+          search={source.filter}
+          opening={opening}
+          describe={(novel) => describe(figures.get(novel.url) ?? novel)}
+          onOpen={open}
+        />
       ) : !novels ? (
         <div className={styles.status}>
           <Spinner label="Loading novels" />

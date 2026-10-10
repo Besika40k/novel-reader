@@ -1,0 +1,38 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 calc(var(--gutter) + var(--safe-right)) 8px calc(var(--gutter) + var(--safe-left));
+}
+
+.summary {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.note {
+  padding: 32px var(--gutter);
+  color: var(--muted);
+  text-align: center;
+}
+
+.novels {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.status {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 16px var(--gutter);
+  color: var(--muted);
+  text-align: center;
+
+  &:empty {
+    display: none;
+  }
+}

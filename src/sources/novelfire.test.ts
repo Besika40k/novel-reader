@@ -1,8 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { parseHtml } from '@/lib/html';
 import chaptersHtml from './__fixtures__/novelfire-chapters.html?raw';
+import filterHtml from './__fixtures__/novelfire-filter.html?raw';
 import rankingHtml from './__fixtures__/novelfire-ranking.html?raw';
-import { parseChapterPage, parseRanking } from './lightnovelpub';
+import {
+  filterUrl,
+  parseChapterPage,
+  parseFilterGenres,
+  parseFilterResults,
+  parseRanking,
+  parseTags,
+} from './lightnovelpub';
 import { novelfire } from './novelfire';
 
 const { fetchDocument } = vi.hoisted(() => ({ fetchDocument: vi.fn() }));
@@ -71,5 +79,63 @@ describe('parseRanking', () => {
         monthlyReads: undefined,
       },
     ]);
+  });
+});
+
+describe('advanced search', () => {
+  const doc = parseHtml(filterHtml);
+
+  it('reads the genres it filters by', () => {
+    expect(parseFilterGenres(doc)).toEqual([
+      { id: '3', name: 'Action' },
+      { id: '5', name: 'Comedy' },
+    ]);
+  });
+
+  it('reads tag suggestions', () => {
+    const json = '{"status":200,"data":[{"id":1336,"name":"Regression"}]}';
+    expect(parseTags(json)).toEqual([{ id: '1336', name: 'Regression' }]);
+  });
+
+  it('builds the search address from a filter', () => {
+    const url = new URL(
+      filterUrl(
+        'https://novelfire.net',
+        {
+          genres: [{ id: '3', name: 'Action' }],
+          tags: [{ id: '1336', name: 'Regression' }],
+          minRating: 4,
+          status: 'ongoing',
+          sort: 'monthly-views',
+        },
+        2,
+      ),
+    );
+    expect(url.pathname).toBe('/search-adv');
+    expect(url.searchParams.getAll('categories[]')).toEqual(['3']);
+    expect(url.searchParams.getAll('tags[]')).toEqual(['1336']);
+    expect(url.searchParams.get('rating')).toBe('4');
+    expect(url.searchParams.get('status')).toBe('0');
+    expect(url.searchParams.get('sort')).toBe('monthly-view');
+    expect(url.searchParams.get('page')).toBe('2');
+  });
+
+  it('reads a page of results and whether more follow', () => {
+    const url = 'https://novelfire.net/search-adv?sort=monthly-view&page=1';
+    expect(parseFilterResults(doc, url)).toEqual({
+      novels: [
+        {
+          url: NOVEL,
+          title: 'The Salt Cartographer',
+          coverUrl: 'https://novelfire.net/server-1/the-salt-cartographer.jpg',
+          info: '513 Chapters',
+          status: 'Ongoing',
+          rating: 4.1,
+        },
+      ],
+      hasMore: true,
+    });
+    const last = 'https://novelfire.net/search-adv?sort=monthly-view&page=2';
+    expect(parseFilterResults(doc, last).hasMore).toBe(false);
   });
 });
