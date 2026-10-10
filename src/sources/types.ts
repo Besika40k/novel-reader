@@ -60,6 +60,8 @@ export interface ChapterListOptions {
 export interface Source {
   id: string;
   name: string;
+  /** The site's logo, bundled with the app. */
+  icon: string;
   /** Hostnames the source owns, used to recognise pasted links. */
   hosts: string[];
   /** Stable, URL-safe key of the novel a novel or chapter link points to; null for other links. */

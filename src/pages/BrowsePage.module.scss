@@ -96,8 +96,8 @@
   @include pressable;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 52px;
+  gap: 12px;
+  min-height: 56px;
   padding: 0 calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
   text-decoration: none;
 

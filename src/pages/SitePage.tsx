@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
 import { Button, Spinner } from '@/components/Button';
 import { NovelRow } from '@/components/NovelRow';
+import { SiteLogo } from '@/components/SiteLogo';
 import { TopBar } from '@/components/TopBar';
 import { ensureNovel, novelPath } from '@/db/library';
 import { errorMessage } from '@/lib/async';
@@ -107,7 +108,15 @@ function SiteLists({ source }: { source: Source }) {
 
   return (
     <>
-      <TopBar title={source.name} back="/browse" />
+      <TopBar
+        title={
+          <span className={styles.heading}>
+            <SiteLogo source={source} size={24} />
+            {source.name}
+          </span>
+        }
+        back="/browse"
+      />
       <div className={styles.lists} role="group" aria-label="List">
         {source.lists.map((list) => (
           <button
