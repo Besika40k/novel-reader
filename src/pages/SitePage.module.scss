@@ -44,3 +44,26 @@
   padding: 0;
   list-style: none;
 }
+
+// Rating stars in muted tones, from the best band down.
+.star {
+  &[data-band='5'] {
+    color: var(--rating-5);
+  }
+
+  &[data-band='4'] {
+    color: var(--rating-4);
+  }
+
+  &[data-band='3'] {
+    color: var(--rating-3);
+  }
+
+  &[data-band='2'] {
+    color: var(--rating-2);
+  }
+
+  &[data-band='1'] {
+    color: var(--rating-1);
+  }
+}

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { NovelSummary } from '@/sources/types';
 import { Spinner } from './Button';
 import { Cover } from './Cover';
@@ -6,7 +7,7 @@ import styles from './NovelRow.module.scss';
 interface NovelRowProps {
   novel: NovelSummary;
   /** The muted line under the title. */
-  details?: string;
+  details?: ReactNode;
   busy?: boolean;
   disabled?: boolean;
   onOpen: () => void;
