@@ -71,12 +71,11 @@ natively. Public repo, single user.
 
 ## Current work
 
-- 0.5.0 (2026-10-10): swipe between library categories; library titles shrink a little to fit two
-  lines; site logos; search across all sites in Browse, each site's own search on its page; a rune
-  after each main tab's title (`Rune.tsx`); a faint rune pattern behind the tab pages
-  (`src/assets/rune-pattern.svg`, redrawn from the owner's reference image). 0.4.0 (History,
-  NovelFire, site lists, download fixes) is on the phone. Next: thoughts unquoted and telepathy in
-  parentheses (see the doc's "Next").
+- 0.6.0 (2026-10-11): a filter on each site page (genres, tags, lowest rating, status, order, from
+  the sites' `/search-adv`; `FilterSheet`, `FilteredNovels`); rating stars coloured by band; swipe a
+  History entry left to delete it (`SwipeToDelete`); a plan for learning the reader's taste
+  (`docs/reader-insights.md`, types only). Next: build on that plan once tags and ratings are
+  parsed; thoughts unquoted and telepathy in parentheses (see the quote doc's "Next").
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few

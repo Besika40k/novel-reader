@@ -12,6 +12,37 @@ export interface NovelSummary {
   monthlyReads?: string;
 }
 
+/** A genre or tag a site filters by. */
+export interface Label {
+  id: string;
+  name: string;
+}
+
+export type FilterSort = 'monthly-views' | 'total-views' | 'rating' | 'rank' | 'updated';
+
+/** What to filter a site's novels by. A novel must have every genre and every tag chosen. */
+export interface NovelFilter {
+  genres: Label[];
+  tags: Label[];
+  /** Lowest rating, 1–5, or 0 for any. */
+  minRating: number;
+  status: 'all' | 'ongoing' | 'completed';
+  sort: FilterSort;
+}
+
+/** A site's advanced search. */
+export interface NovelFilterSearch {
+  genres(signal?: AbortSignal): Promise<Label[]>;
+  /** Tags whose name contains the term; the sites want at least four letters. */
+  findTags(term: string, signal?: AbortSignal): Promise<Label[]>;
+  /** One page of matching novels, starting at 1. */
+  search(
+    filter: NovelFilter,
+    page: number,
+    signal?: AbortSignal,
+  ): Promise<{ novels: NovelSummary[]; hasMore: boolean }>;
+}
+
 /** One of a site's own lists of novels, e.g. its most read. */
 export interface NovelList {
   id: string;
@@ -75,6 +106,8 @@ export interface Source {
   /** The site's lists of novels to browse without searching; empty when it has none. */
   lists: NovelList[];
   getList(listId: string, signal?: AbortSignal): Promise<NovelSummary[]>;
+  /** Filtering the site's novels, when it can. */
+  filter?: NovelFilterSearch;
 }
 
 /** The page loaded but didn't contain what the parser expected, usually after a site redesign. */

@@ -1,11 +1,13 @@
 import { mapLimit } from '@/lib/async';
 import { absoluteUrl, blockText, cleanText } from '@/lib/html';
-import { fetchDocument } from '@/lib/http';
+import { fetchDocument, fetchText } from '@/lib/http';
 import { extractParagraphs } from '@/lib/inline';
 import {
   SourceError,
   type ChapterRef,
   type ChapterText,
+  type Label,
+  type NovelFilter,
   type NovelDetails,
   type NovelSummary,
   type Source,
@@ -75,6 +77,81 @@ export function parseRanking(doc: Document, pageUrl: string): NovelSummary[] {
       },
     ];
   });
+}
+
+/** The genres the advanced search page offers, as its checkboxes list them. */
+export function parseFilterGenres(doc: Document): Label[] {
+  return Array.from(doc.querySelectorAll('input[name="categories[]"]'), (input) => ({
+    id: input.getAttribute('value') ?? '',
+    name: cleanText(input.closest('label')),
+  })).filter((genre) => genre.id && genre.name);
+}
+
+/** The answer to /ajax/getTags: `{ data: [{ id, name }] }`. */
+export function parseTags(json: string): Label[] {
+  const { data } = JSON.parse(json) as { data?: { id: number | string; name: string }[] };
+  return (data ?? []).map((tag) => ({ id: String(tag.id), name: tag.name }));
+}
+
+const SORTS: Record<NovelFilter['sort'], string> = {
+  'monthly-views': 'monthly-view',
+  'total-views': 'total-view',
+  rating: 'rating-score-top',
+  rank: 'rank-top',
+  updated: 'date',
+};
+
+const STATUSES: Record<NovelFilter['status'], string> = { all: '-1', ongoing: '0', completed: '1' };
+
+export function filterUrl(base: string, filter: NovelFilter, page: number): string {
+  const params = new URLSearchParams({
+    ctgcon: 'and',
+    totalchapter: '0',
+    ratcon: 'min',
+    rating: String(filter.minRating),
+    status: STATUSES[filter.status],
+    sort: SORTS[filter.sort],
+    tagcon: 'and',
+  });
+  for (const genre of filter.genres) params.append('categories[]', genre.id);
+  for (const tag of filter.tags) params.append('tags[]', tag.id);
+  params.set('page', String(page));
+  return `${base}/search-adv?${params}`;
+}
+
+/** A page of advanced search results, and whether the pager links to a later page. */
+export function parseFilterResults(
+  doc: Document,
+  pageUrl: string,
+): { novels: NovelSummary[]; hasMore: boolean } {
+  const items = Array.from(doc.querySelectorAll('li.novel-item')).filter(
+    (item) => !item.closest('.popular-novels, aside'),
+  );
+  const novels = items.flatMap((item): NovelSummary[] => {
+    const link = item.querySelector('.novel-title a[href], a[href]');
+    const url = absoluteUrl(link?.getAttribute('href'), pageUrl);
+    if (!url) return [];
+    const rating = parseFloat(cleanText(item.querySelector('.rating .text')));
+    const chapters = Array.from(item.querySelectorAll('.novel-stats span'))
+      .map(cleanText)
+      .find((stat) => /chapters?$/i.test(stat));
+    return [
+      {
+        url,
+        title: cleanText(item.querySelector('.novel-title')) || link?.getAttribute('title') || url,
+        coverUrl: imageUrl(item.querySelector('img'), pageUrl),
+        info: chapters,
+        status: cleanText(item.querySelector('.status')) || undefined,
+        rating: rating > 0 ? rating : undefined,
+      },
+    ];
+  });
+  const page = Number(new URL(pageUrl).searchParams.get('page') ?? 1);
+  // NovelFire's pager has only a "next" link; NovelPhoenix's numbers its pages too.
+  const hasMore = Array.from(doc.querySelectorAll('a[rel="next"][href], .pagination a[href]')).some(
+    (link) => Number(/[?&]page=(\d+)/.exec(link.getAttribute('href') ?? '')?.[1] ?? 0) > page,
+  );
+  return { novels, hasMore };
 }
 
 export function parseNovel(doc: Document, pageUrl: string): NovelDetails {
@@ -222,6 +299,20 @@ export function lightNovelPubSource({ id, name, base, icon, novelPath }: Templat
     async getList(listId, signal) {
       const url = `${base}/ranking/${listId}`;
       return parseRanking(await fetchDocument(url, signal), url);
+    },
+
+    filter: {
+      async genres(signal) {
+        return parseFilterGenres(await fetchDocument(`${base}/search-adv`, signal));
+      },
+      async findTags(term, signal) {
+        const url = `${base}/ajax/getTags?term=${encodeURIComponent(term)}`;
+        return parseTags(await fetchText(url, signal));
+      },
+      async search(filter, page, signal) {
+        const url = filterUrl(base, filter, page);
+        return parseFilterResults(await fetchDocument(url, signal), url);
+      },
     },
   };
 }
