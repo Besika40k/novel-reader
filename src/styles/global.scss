@@ -100,6 +100,9 @@
   --rating-3: #6f8fa3;
   --rating-2: #9a8a78;
   --rating-1: #a8807b;
+  // Swipe-to-delete strip: a deep red on every theme, with a light icon.
+  --delete: #8b1e1a;
+  --on-delete: #f6e9e7;
   // How strongly the rune pattern shows behind the tab pages.
   --pattern-opacity: 0.05;
 }
