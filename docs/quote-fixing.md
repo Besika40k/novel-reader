@@ -170,8 +170,9 @@ On chapter 252 the rules quote exactly the 5 tagged lines, with no false positiv
   prompt and rule changes plus a `FIX_VERSION` bump.
 - A Royal Road source would give chapters 696+ of this novel with quotes intact (they're free
   there; the Archive may lack the newest).
-- The junk filter misses notices without a site name ("The narrative has been taken without
-  permission. Report any sightings.", "Read the official version to support the creator.").
-  An Archive fix could mark copy paragraphs it can't place that look like notices.
+- The junk filter now catches notices without a site name too ("The narrative has been taken
+  without permission. Report any sightings.", "Read the official version to support the
+  creator."). If a new wording slips through, add it to `junk.test.ts` and widen a pattern; an
+  Archive fix could also mark copy paragraphs it can't place that look like notices.
 - Novels with no Archive copy: the test bench and on-device statistical model (option B) from the
   owner's plan, if the rules aren't enough.
