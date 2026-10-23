@@ -60,6 +60,24 @@ export function LibraryPage() {
     }
   };
 
+  // Fade the tabs' edges where more of them are hidden, so it's clear they scroll. Set on the
+  // element directly: it follows scrolling, which shouldn't re-render the library.
+  useEffect(() => {
+    const nav = tabs.current;
+    if (!nav) return;
+    const mark = () => {
+      nav.toggleAttribute('data-more-start', nav.scrollLeft > 4);
+      nav.toggleAttribute('data-more-end', nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 4);
+    };
+    mark();
+    nav.addEventListener('scroll', mark, { passive: true });
+    window.addEventListener('resize', mark);
+    return () => {
+      nav.removeEventListener('scroll', mark);
+      window.removeEventListener('resize', mark);
+    };
+  }, [categories, novels]);
+
   // Keep the chosen category's tab in view when there are more than fit across.
   useEffect(() => {
     const nav = tabs.current;

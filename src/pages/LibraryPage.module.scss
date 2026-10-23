@@ -18,6 +18,24 @@
   &::-webkit-scrollbar {
     display: none;
   }
+
+  // Edges fade where more tabs are hidden (set from script as the tabs scroll).
+  &[data-more-end] {
+    --fade: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
+
+  &[data-more-start] {
+    --fade: linear-gradient(to right, transparent, #000 40px);
+  }
+
+  &[data-more-start][data-more-end] {
+    --fade: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 40px), transparent);
+  }
+
+  &[data-more-start],
+  &[data-more-end] {
+    mask-image: var(--fade);
+  }
 }
 
 .tab {
