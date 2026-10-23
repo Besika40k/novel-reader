@@ -24,6 +24,9 @@ describe('isJunkParagraph', () => {
     "This book's true home is on another platform. Check it out there for the real experience.",
     "This narrative has been purloined without the author's approval. Report any appearances on Amazon.",
     'Stolen from NovelFire, this story should be reported if encountered on Amazon.',
+    'Enjoying this book? Seek out the original to ensure the author gets credit.',
+    'Support the author by searching for the original publication of this novel.',
+    'Reading on this site? This novel is published elsewhere. Support the author by seeking out the original.',
     'Visit freewebnovel.com for the latest chapters.',
     '   ',
   ])('flags %j', (text) => {
@@ -41,6 +44,7 @@ describe('isJunkParagraph', () => {
     'The pirate captain told a tale of stolen gold.',
     'He left. Co-workers read the chapter notes aloud.',
     'Then I jump to another platform, and Myrra follows me across.',
+    'I fail to detect the original, and I look for the original again.',
     'Book 2 is out on Amazon now, and thank you all for reading it!',
     `${'A long paragraph about Royal Road and stolen goods. '.repeat(8)}`,
   ])('keeps %j', (text) => {
