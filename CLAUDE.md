@@ -71,11 +71,12 @@ natively. Public repo, single user.
 
 ## Current work
 
-- 0.6.0 (2026-10-11): a filter on each site page (genres, tags, lowest rating, status, order, from
-  the sites' `/search-adv`; `FilterSheet`, `FilteredNovels`); rating stars coloured by band; swipe a
-  History entry left to delete it (`SwipeToDelete`); a plan for learning the reader's taste
-  (`docs/reader-insights.md`, types only). Next: build on that plan once tags and ratings are
-  parsed; thoughts unquoted and telepathy in parentheses (see the quote doc's "Next").
+- 0.7.0 (2026-10-23): backups (Settings, to Documents/LN Jormungandr, weekly by itself, keys never
+  included; `src/db/backup.ts`), reading statistics (`stats` table per day and novel, reading time
+  from scroll/tap events in `useReadingTime`, StatsPage from History), Updates (chapters get
+  `foundAt`, UpdatesPage from the Library bell, a check every 12 hours outside the reader).
+  Next (`docs/jormungandr-pet.md`): the smaller LNReader ideas and the Jormungandr pet; text to
+  speech only with a free voice the owner likes.
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few
