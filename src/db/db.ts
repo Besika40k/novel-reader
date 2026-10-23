@@ -22,8 +22,10 @@ export interface Novel {
   inLibrary: Flag;
   categoryId?: number;
   addedAt: number;
-  /** When the details and chapter list were last fetched. */
+  /** When the chapter list was last fetched. */
   checkedAt?: number;
+  /** When the details page (summary, genres, status, cover) was last fetched. */
+  detailsAt?: number;
   lastReadUrl?: string;
   lastReadAt?: number;
   /** The novel on Royal Road, whose archived chapters are the best source for quotes. */
