@@ -20,7 +20,7 @@ const REPORT = /\b(report\w*|sightings?|infringement|violation)\b/i;
 const WORK = /\b(story|stories|tale|narrative|novel)\b/i;
 // "Read it on the original site to support the author" and its many rewordings.
 const ELSEWHERE =
-  /\b((?:original|official|genuine|authentic|legitimate|preferred)\s+(?:site|website|platform|source|version|release|publisher)|(?:another|different)\s+(?:site|website|platform)|originally published|published (?:on|elsewhere)|posted elsewhere)\b/i;
+  /\b((?:original|official|genuine|authentic|legitimate|preferred)\s+(?:site|website|platform|source|version|release|publisher)|(?:another|different)\s+(?:site|website|platform)|originally published|published (?:on|elsewhere)|posted elsewhere|original publication|(?:seek|search|look)\w* (?:out |for )?the original)\b/i;
 const SUPPORT = /\b(authors?|creators?|writers?|support\w*|credit)\b/i;
 const SELF = /\b(this (?:book|story|novel|tale|narrative|text|content)|true home)\b/i;
 // Aggregator watermarks such as "Visit freewebnovel.com for the latest chapters".
