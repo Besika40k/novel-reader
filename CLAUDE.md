@@ -75,7 +75,9 @@ natively. Public repo, single user.
 ## Current work
 
 - 0.8.0 (2026-10-23): the Jormungandr pet (`src/pet/`, lazy Serpent tab; feeds on `stats`
-  chapters, so the reader does nothing extra; SVG from parts, CSS transform/opacity motion only),
+  chapters, so the reader does nothing extra; one ink illustration per stage in
+  `src/assets/pet/*.webp`, made by the owner with Gemini; customization is on hold, the catalog
+  and unlocks are kept but the Wardrobe is hidden),
   paragraph spacing and side margins, download ahead (0–10 chapters), tap to turn pages, chapter
   bookmarks. 0.7.0 brought backups, reading statistics and Updates.
 - Dropped at the owner's request: auto-scroll and volume-button paging. Open: moving a novel

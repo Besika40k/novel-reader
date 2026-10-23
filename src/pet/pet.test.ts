@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { earned, meetsRule, ruleHint, type Progress } from './catalog';
-import { bodyFor } from './geometry';
 import { chaptersFor, growth, levelFor, stageFor } from './growth';
 
 describe('growth', () => {
@@ -53,20 +52,5 @@ describe('catalog', () => {
     expect(ruleHint({ stage: 'sea' })).toBe('Grow into a Sea serpent');
     expect(ruleHint({ finishedNovels: 1 })).toBe('Finish 1 novel');
     expect(meetsRule({ streak: 10 }, progress)).toBe(false);
-  });
-});
-
-describe('bodyFor', () => {
-  it('coils until the World Serpent, then rings Midgard', () => {
-    expect(bodyFor(12).world).toBe(false);
-    expect(bodyFor(50).world).toBe(true);
-    expect(bodyFor(12).points.length).toBeLessThan(bodyFor(36).points.length);
-  });
-
-  it('closes the ring for Jormungandr', () => {
-    const { points } = bodyFor(62);
-    const tail = points[0];
-    const head = points[points.length - 1];
-    expect(Math.hypot(head.x - tail.x, head.y - tail.y)).toBeLessThan(20);
   });
 });

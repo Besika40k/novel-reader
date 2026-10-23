@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Lock, Shirt } from 'lucide-react';
-import { Button } from '@/components/Button';
-import { Sheet } from '@/components/Sheet';
 import { TopBar } from '@/components/TopBar';
-import { CATALOG, itemById, ruleHint, SLOTS, type Slot } from '@/pet/catalog';
 import { growth, levelFor } from '@/pet/growth';
 import { Serpent } from '@/pet/Serpent';
-import { ensurePet, equip, feedPet, petState, renamePet, type PetState } from '@/pet/store';
+import { ensurePet, feedPet, petState } from '@/pet/store';
 import styles from './PetPage.module.scss';
 
 /** How long the morsels fly before the meal is reported and saved. */
@@ -17,67 +13,12 @@ interface Meal {
   eaten: number;
   from: number;
   to: number;
-  items: string[];
   firstVisit: boolean;
-}
-
-function Wardrobe({ state, onClose }: { state: PetState; onClose: () => void }) {
-  const { pet } = state;
-  const [name, setName] = useState(pet.name);
-  const owned = new Set([...pet.unlocked, ...state.newlyEarned]);
-  return (
-    <div className={styles.wardrobe}>
-      <label className={styles.nameField}>
-        Name
-        <input
-          value={name}
-          maxLength={40}
-          onChange={(event) => setName(event.target.value)}
-          onBlur={() => void renamePet(name)}
-        />
-      </label>
-      {SLOTS.map(({ slot, name: slotName }) => (
-        <section key={slot} className={styles.slot}>
-          <h3 className={styles.slotName}>{slotName}</h3>
-          <div className={styles.items}>
-            {CATALOG.filter((item) => item.slot === slot).map((item) => {
-              const has = owned.has(item.id);
-              const on = pet.equipped[slot as Slot] === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={styles.item}
-                  aria-pressed={on}
-                  disabled={!has}
-                  title={has ? item.name : ruleHint(item.rule)}
-                  onClick={() => void equip(slot, item.id)}
-                >
-                  {item.color && (
-                    <span className={styles.swatch} style={{ background: item.color }} />
-                  )}
-                  {!has && <Lock aria-hidden className={styles.lock} />}
-                  <span className={styles.itemText}>
-                    {item.name}
-                    {!has && <span className={styles.itemHint}>{ruleHint(item.rule)}</span>}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      ))}
-      <Button block onClick={onClose}>
-        Done
-      </Button>
-    </div>
-  );
 }
 
 export function PetPage() {
   const state = useLiveQuery(() => petState(), []);
   const [meal, setMeal] = useState<Meal>();
-  const [wardrobe, setWardrobe] = useState(false);
 
   useEffect(() => {
     void ensurePet();
@@ -95,7 +36,6 @@ export function PetPage() {
           eaten,
           from: levelFor(state.pet.lastSeenChapters),
           to: levelFor(state.food),
-          items: state.newlyEarned,
           firstVisit: state.pet.unlocked.length === 0,
         });
         void feedPet(state.food, state.newlyEarned);
@@ -111,19 +51,10 @@ export function PetPage() {
 
   return (
     <>
-      <TopBar
-        display
-        title={state.pet.name}
-        rune="eihwaz"
-        actions={
-          <Button icon={<Shirt />} onClick={() => setWardrobe(true)}>
-            Wardrobe
-          </Button>
-        }
-      />
+      <TopBar display title={state.pet.name} rune="eihwaz" />
       <div className={styles.page}>
         <div className={styles.stage}>
-          <Serpent level={g.level} equipped={state.pet.equipped} morsels={eaten} />
+          <Serpent level={g.level} morsels={eaten} />
         </div>
 
         <div className={styles.status}>
@@ -155,16 +86,6 @@ export function PetPage() {
                 </p>
               )
             )}
-            {meal.items.length > 0 && (
-              <p>
-                New in the wardrobe:{' '}
-                {meal.items
-                  .map((id) => itemById(id)?.name)
-                  .filter((name) => name && name !== 'Nothing')
-                  .join(', ')}
-                .
-              </p>
-            )}
           </div>
         )}
 
@@ -187,10 +108,6 @@ export function PetPage() {
           it.
         </p>
       </div>
-
-      <Sheet open={wardrobe} onClose={() => setWardrobe(false)} title="Wardrobe">
-        {wardrobe && <Wardrobe state={state} onClose={() => setWardrobe(false)} />}
-      </Sheet>
     </>
   );
 }
