@@ -145,14 +145,24 @@ describe('getChapterList', () => {
     expect(requestedPages().sort()).toEqual([1, 2, 3]);
   });
 
-  it('skips pages that only hold chapters it already has', async () => {
+  it('starts at the page holding the last known chapter', async () => {
     const chapters = await novelphoenix.getChapterList(NOVEL, { knownCount: 212 });
-    expect(requestedPages().sort()).toEqual([1, 3]);
+    expect(requestedPages()).toEqual([3]);
     expect(chapters.map((c) => c.index)).toContain(212);
   });
 
-  it('refetches the page holding the last known chapter', async () => {
+  it('fetches the pages after it too', async () => {
     await novelphoenix.getChapterList(NOVEL, { knownCount: 150 });
-    expect(requestedPages().sort()).toEqual([1, 2, 3]);
+    expect(requestedPages()).toEqual([2, 3]);
+  });
+
+  it('reads from page 1 when the paging has shifted', async () => {
+    fetchDocument.mockImplementation(async (url: string) => {
+      const page = Number(new URL(url).searchParams.get('page'));
+      // Page 3 starting somewhere other than chapter 201 means the site pages differently now.
+      return parseHtml(page === 3 ? listPage(2) : listPage(page));
+    });
+    await novelphoenix.getChapterList(NOVEL, { knownCount: 212 });
+    expect(requestedPages()).toEqual([3, 1, 3]);
   });
 });

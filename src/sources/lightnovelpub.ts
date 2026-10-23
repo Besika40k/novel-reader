@@ -13,6 +13,9 @@ import {
   type Source,
 } from './types';
 
+/** Chapters on each page of a chapter list, on both sites. */
+const PAGE_SIZE = 100;
+
 /*
  * The site template NovelPhoenix and NovelFire both run (LightNovelPub's): the same pages and
  * markup, with novels under a different path.
@@ -273,19 +276,34 @@ export function lightNovelPubSource({ id, name, base, icon, novelPath }: Templat
 
     async getChapterList(novelUrl, { knownCount, signal }) {
       const pageUrl = (page: number) => `${novelUrl}/chapters?page=${page}`;
-      const first = parseChapterPage(await fetchDocument(pageUrl(1), signal), pageUrl(1));
+      const fetchPage = async (page: number) =>
+        parseChapterPage(await fetchDocument(pageUrl(page), signal), pageUrl(page));
+      // Two at a time: NovelFire answers 429 when a long list (37 pages for 3,700 chapters) is
+      // asked for three at a time.
+      const fetchPages = (from: number, to: number) => {
+        const pages = [];
+        for (let page = from; page <= to; page++) pages.push(page);
+        return mapLimit(pages, 2, async (page) => (await fetchPage(page)).chapters);
+      };
+
+      // A known list starts at the page holding its last chapter, so a check that finds nothing
+      // new costs one request. That page's first chapter must be where PAGE_SIZE puts it;
+      // otherwise the site has changed its paging, and the list is read from page 1.
+      const lastKnown = Math.floor((knownCount - 1) / PAGE_SIZE) + 1;
+      if (lastKnown > 1) {
+        const page = await fetchPage(lastKnown);
+        if (page.chapters[0]?.index === (lastKnown - 1) * PAGE_SIZE + 1) {
+          const rest = await fetchPages(lastKnown + 1, page.pageCount);
+          return [...page.chapters, ...rest.flat()];
+        }
+      }
+
+      const first = await fetchPage(1);
       // Pages hold a fixed number of chapters, so only the pages after the last known chapter can
       // hold anything new.
       const pageSize = Math.max(first.chapters.length, 1);
       const startPage = Math.max(2, Math.floor((knownCount - 1) / pageSize) + 1);
-      const pages = [];
-      for (let page = startPage; page <= first.pageCount; page++) pages.push(page);
-      // Two at a time: NovelFire answers 429 when a long list (37 pages for 3,700 chapters) is
-      // asked for three at a time.
-      const rest = await mapLimit(pages, 2, async (page) => {
-        const url = pageUrl(page);
-        return parseChapterPage(await fetchDocument(url, signal), url).chapters;
-      });
+      const rest = await fetchPages(startPage, first.pageCount);
       return [...first.chapters, ...rest.flat()];
     },
 
