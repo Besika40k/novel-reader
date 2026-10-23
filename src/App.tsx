@@ -7,7 +7,7 @@ import { HistoryPage } from './pages/HistoryPage';
 import { LibraryPage } from './pages/LibraryPage';
 import { NovelPage } from './pages/NovelPage';
 import { ReaderPage } from './pages/ReaderPage';
-import { SettingsPage } from './pages/SettingsPage';
+import { SettingsPage, SettingsSectionPage } from './pages/SettingsPage';
 import { SitePage } from './pages/SitePage';
 import { StatsPage } from './pages/StatsPage';
 import { UpdatesPage } from './pages/UpdatesPage';
@@ -33,6 +33,7 @@ export function App() {
             }
           />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings/:section" element={<SettingsSectionPage />} />
         </Route>
         <Route path="novel/:novelId" element={<NovelPage />} />
         <Route path="read/:novelId/:index" element={<ReaderPage />} />

@@ -79,7 +79,7 @@ export function BackupSection() {
       .length ?? 0;
 
   return (
-    <section className={styles.section}>
+    <>
       <h2 className={styles.heading}>Backup</h2>
       <dl className={styles.facts}>
         <div>
@@ -154,6 +154,6 @@ export function BackupSection() {
           onChange={(autoBackup) => setPrefs({ autoBackup })}
         />
       )}
-    </section>
+    </>
   );
 }
