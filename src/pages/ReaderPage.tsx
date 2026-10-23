@@ -373,7 +373,7 @@ export function ReaderPage() {
                     onFix={() => {
                       if (ready) fixChapter(ready).catch(() => undefined);
                     }}
-                    onSetUp={() => navigate('/settings#ai')}
+                    onSetUp={() => navigate('/settings/ai')}
                     onToggleOriginal={() => setOriginalOf(showOriginal ? undefined : url)}
                   />
                 )}
