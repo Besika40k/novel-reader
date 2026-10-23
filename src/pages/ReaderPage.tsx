@@ -25,10 +25,11 @@ import {
   neighbour,
   novelPath,
   readerPath,
+  chaptersAhead,
   saveProgress,
   setLastRead,
 } from '@/db/library';
-import { errorMessage } from '@/lib/async';
+import { errorMessage, sleep } from '@/lib/async';
 import { readableParagraphs, type Paragraph } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
 import { useReadingTime } from '@/lib/useReadingTime';
@@ -224,16 +225,27 @@ export function ReaderPage() {
     };
   }, [ready, startAt]);
 
-  // Fetch the next chapter in the background so turning the page is instant.
+  // Download the next chapters in the background (one at a time, a moment apart), so turning
+  // the page is instant and reading can go on offline. Stops when the chapter changes.
   const nextUrl = next?.url;
   const nextStored = next?.downloaded === 1;
+  const chapterIndex = chapter?.index;
+  const ahead = prefs.downloadAhead;
   useEffect(() => {
-    if (!ready || !nextUrl || nextStored) return;
-    const timer = setTimeout(() => {
-      loadChapterContent(nextUrl).catch(() => undefined);
+    if (!ready || chapterIndex === undefined || ahead < 1) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      for (const upcoming of await chaptersAhead(novelId, chapterIndex, ahead)) {
+        if (cancelled) return;
+        await loadChapterContent(upcoming.url).catch(() => undefined);
+        await sleep(1500);
+      }
     }, 1500);
-    return () => clearTimeout(timer);
-  }, [ready, nextUrl, nextStored]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [ready, novelId, chapterIndex, ahead]);
 
   // Automatic quote fixing: the open chapter once, then the next stored one in the background.
   const fixSettled = isSettledFix(fix, linked);

@@ -200,6 +200,19 @@ export function loadChapterContent(url: string): Promise<ChapterContent> {
   return task;
 }
 
+/** The next `count` chapters after `index` that aren't downloaded yet, in reading order. */
+export async function chaptersAhead(
+  novelId: string,
+  index: number,
+  count: number,
+): Promise<Chapter[]> {
+  const next = await db.chapters
+    .where('[novelId+index]')
+    .between([novelId, index + 1], [novelId, index + count], true, true)
+    .toArray();
+  return next.filter((chapter) => chapter.downloaded === 0);
+}
+
 export async function deleteDownloads(urls: string[]): Promise<void> {
   await db.transaction('rw', db.contents, db.fixes, db.chapters, async () => {
     await db.contents.bulkDelete(urls);

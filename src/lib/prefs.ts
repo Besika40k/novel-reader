@@ -15,6 +15,8 @@ export interface Prefs {
   justify: boolean;
   /** Hide the phone's status and navigation bars while reading. */
   immersive: boolean;
+  /** Chapters after the open one to keep downloaded while reading; 0 turns it off. */
+  downloadAhead: number;
   /** Save a backup to Documents once a week. */
   autoBackup: boolean;
   /** Check the library for new chapters every 12 hours, when the app opens. */
@@ -30,6 +32,7 @@ export const DEFAULT_PREFS: Prefs = {
   margin: 22,
   justify: false,
   immersive: true,
+  downloadAhead: 1,
   autoBackup: true,
   autoUpdate: true,
 };
