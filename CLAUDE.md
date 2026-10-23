@@ -80,6 +80,10 @@ natively. Public repo, single user.
   and unlocks are kept but the Wardrobe is hidden),
   paragraph spacing and side margins, download ahead (0–10 chapters), tap to turn pages, chapter
   bookmarks. 0.7.0 brought backups, reading statistics and Updates.
+- 0.8.1 (2026-10-23): performance from comparing with LNReader, measured on the phone (chapter
+  rows compare what they show; library checks fetch one chapter-list page per novel and details
+  weekly) and design fixes (two-line Continue, Updates grouped by novel, Settings as sub-pages,
+  full numbers via `src/lib/format.ts`, Royal Road link in the novel's ⋮ menu once set).
 - Dropped at the owner's request: auto-scroll and volume-button paging. Open: moving a novel
   between NovelPhoenix and NovelFire; text to speech only with a free voice he likes.
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
