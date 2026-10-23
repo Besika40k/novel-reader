@@ -7,6 +7,8 @@ import {
   BookmarkPlus,
   BookOpen,
   Download,
+  EllipsisVertical,
+  ExternalLink,
   Quote,
   RefreshCw,
   Trash,
@@ -60,7 +62,7 @@ export function NovelPage() {
   const [newestFirst, setNewestFirst] = useState(false);
   const [bookmarksOnly, setBookmarksOnly] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const [sheet, setSheet] = useState<'library' | 'download' | 'royalRoad'>();
+  const [sheet, setSheet] = useState<'library' | 'download' | 'royalRoad' | 'menu'>();
   const [actionsFor, setActionsFor] = useState<Chapter>();
   const [flashIndex, setFlashIndex] = useState<number>();
   usePageScroll(`novel:${novelId}`, novel !== undefined && chapters !== undefined);
@@ -171,13 +173,18 @@ export function NovelPage() {
         back="/"
         title={novel?.title}
         actions={
-          <IconButton
-            label="Check for new chapters"
-            disabled={refreshing}
-            onClick={() => refresh(true)}
-          >
-            {refreshing ? <Spinner /> : <RefreshCw />}
-          </IconButton>
+          <>
+            <IconButton
+              label="Check for new chapters"
+              disabled={refreshing}
+              onClick={() => refresh(true)}
+            >
+              {refreshing ? <Spinner /> : <RefreshCw />}
+            </IconButton>
+            <IconButton label="More" disabled={!novel} onClick={() => setSheet('menu')}>
+              <EllipsisVertical />
+            </IconButton>
+          </>
         }
       />
 
@@ -255,11 +262,18 @@ export function NovelPage() {
             </ul>
           )}
 
-          <button type="button" className={styles.royalRoad} onClick={() => setSheet('royalRoad')}>
-            <Quote aria-hidden />
-            <span>Quotes from Royal Road</span>
-            <span className={styles.count}>{novel.royalRoadUrl ? 'Linked' : 'Not linked'}</span>
-          </button>
+          {/* Offered on the page until linked; after that it's managed from the ⋮ menu. */}
+          {!novel.royalRoadUrl && (
+            <button
+              type="button"
+              className={styles.royalRoad}
+              onClick={() => setSheet('royalRoad')}
+            >
+              <Quote aria-hidden />
+              <span>Quotes from Royal Road</span>
+              <span className={styles.count}>Not linked</span>
+            </button>
+          )}
         </>
       )}
 
@@ -367,6 +381,34 @@ export function NovelPage() {
           onClose={closeSheet}
         />
       )}
+
+      <Sheet open={sheet === 'menu'} onClose={closeSheet} title={novel?.title}>
+        <div className={styles.sheetList}>
+          <Button
+            block
+            icon={<Quote />}
+            className={styles.sheetButton}
+            onClick={() => setSheet('royalRoad')}
+          >
+            Quotes from Royal Road
+            <span className={styles.count}>{novel?.royalRoadUrl ? 'Linked' : 'Not linked'}</span>
+          </Button>
+          {novel && (
+            <Button
+              block
+              icon={<ExternalLink />}
+              className={styles.sheetButton}
+              onClick={() => {
+                window.open(novel.url, '_blank', 'noreferrer');
+                closeSheet();
+              }}
+            >
+              Open on {sourceName ?? 'the site'}
+              <span />
+            </Button>
+          )}
+        </div>
+      </Sheet>
 
       <Sheet open={sheet === 'library'} onClose={closeSheet} title="Category">
         <div className={styles.sheetList}>
