@@ -139,6 +139,23 @@ export function ReaderSettings() {
         onChange={(margin) => setPrefs({ margin })}
       />
 
+      <div className={styles.row}>
+        <span className={styles.label}>Download ahead</span>
+        <div className={styles.segmented} role="group" aria-label="Chapters to download ahead">
+          {[0, 1, 3, 5, 10].map((count) => (
+            <button
+              key={count}
+              type="button"
+              className={styles.segment}
+              aria-pressed={prefs.downloadAhead === count}
+              onClick={() => setPrefs({ downloadAhead: count })}
+            >
+              {count || 'Off'}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <SwitchRow
         label="Justify text"
         checked={prefs.justify}
