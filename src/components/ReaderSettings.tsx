@@ -139,7 +139,7 @@ export function ReaderSettings() {
         onChange={(margin) => setPrefs({ margin })}
       />
 
-      <div className={styles.row}>
+      <div className={`${styles.row} ${styles.stacked}`}>
         <span className={styles.label}>Download ahead</span>
         <div className={styles.segmented} role="group" aria-label="Chapters to download ahead">
           {[0, 1, 3, 5, 10].map((count) => (
