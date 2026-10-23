@@ -104,15 +104,16 @@
   // The top padding deliberately ignores --safe-top: full-screen reading hides the status bar,
   // which changes that inset, and text tied to it would jump each time the bars toggle. A fixed
   // allowance covers the top bar plus any status bar.
-  padding: calc(var(--bar-height) + 60px) calc(22px + var(--safe-right))
-    calc(var(--safe-bottom) + var(--bar-height) + 40px) calc(22px + var(--safe-left));
+  padding: calc(var(--bar-height) + 60px) calc(var(--reader-margin) + var(--safe-right))
+    calc(var(--safe-bottom) + var(--bar-height) + 40px)
+    calc(var(--reader-margin) + var(--safe-left));
   font-family: var(--reader-font);
   font-size: var(--reader-size);
   line-height: var(--reader-leading);
   overflow-wrap: break-word;
 
   p {
-    margin: 0 0 0.9em;
+    margin: 0 0 var(--reader-gap);
     white-space: pre-line;
   }
 

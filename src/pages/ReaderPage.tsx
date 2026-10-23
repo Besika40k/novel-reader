@@ -287,6 +287,8 @@ export function ReaderPage() {
   const style = {
     '--reader-size': `${prefs.fontSize}px`,
     '--reader-leading': prefs.lineHeight,
+    '--reader-gap': `${prefs.paragraphGap}em`,
+    '--reader-margin': `${prefs.margin}px`,
     '--reader-font': prefs.readerFont === 'serif' ? 'var(--font-serif)' : 'var(--font-ui)',
   } as CSSProperties;
 
