@@ -1,4 +1,5 @@
 import type { DayStats } from '@/db/db';
+import { formatNumber } from './format';
 
 /** The local date `offset` days from a YYYY-MM-DD date, as YYYY-MM-DD. */
 export function shiftDay(day: string, offset: number): string {
@@ -75,18 +76,17 @@ export function genreShares(
     .map(([genre, weight]) => ({ genre, share: weight / total }));
 }
 
-/** "3 h 20 min", "45 min", "under a minute". */
+/** "3 h 20 min", "45 min", "<1 min". */
 export function formatDuration(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
-  if (minutes < 1) return seconds > 0 ? 'under a minute' : '0 min';
+  if (minutes < 1) return seconds > 0 ? '<1 min' : '0 min';
   const hours = Math.floor(minutes / 60);
   if (!hours) return `${minutes} min`;
   return minutes % 60 ? `${hours} h ${minutes % 60} min` : `${hours} h`;
 }
 
-/** "980", "12.4K", "1.3M". */
+/** Full numbers like the rest of the app ("312,450"), compact only from a million: "1.3M". */
 export function formatCount(value: number): string {
-  if (value < 1000) return String(value);
-  if (value < 1_000_000) return `${(value / 1000).toFixed(value < 10_000 ? 1 : 0)}K`;
+  if (value < 1_000_000) return formatNumber(value);
   return `${(value / 1_000_000).toFixed(1)}M`;
 }

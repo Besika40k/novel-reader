@@ -6,14 +6,11 @@ import { localDay } from '@/db/db';
 import { novelPath } from '@/db/library';
 import { readingStats } from '@/db/stats';
 import { formatCount, formatDuration, genreShares, lastDays, streaks } from '@/lib/statsSummary';
+import { formatNumber, plural } from '@/lib/format';
 import styles from './StatsPage.module.scss';
 
 const DAYS = 30;
 const dayName = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' });
-
-function plural(count: number, word: string): string {
-  return `${count} ${word}${count === 1 ? '' : 's'}`;
-}
 
 function dateOf(day: string): Date {
   return new Date(`${day}T12:00`);
@@ -37,13 +34,20 @@ export function StatsPage() {
     novels.map(({ novel, read }) => ({ genres: novel.genres, read })),
     8,
   );
+  // Time, words and the daily chart only count from 0.7.0 on; until a chapter has been finished
+  // since, show that they're waiting rather than zeros that look broken.
+  const counted = rows.filter((row) => row.chapters > 0 || row.seconds >= 60);
+  const since = counted.reduce<string | undefined>(
+    (first, row) => (first === undefined || row.day < first ? row.day : first),
+    undefined,
+  );
   const figures: [string, string][] = [
     ['Chapters read', formatCount(novels.reduce((sum, n) => sum + n.read, 0))],
-    ['Words read', formatCount(rows.reduce((sum, row) => sum + row.words, 0))],
-    ['Time reading', formatDuration(rows.reduce((sum, row) => sum + row.seconds, 0))],
+    ['Words read', since ? formatCount(rows.reduce((sum, row) => sum + row.words, 0)) : '—'],
+    ['Time reading', since ? formatDuration(rows.reduce((sum, row) => sum + row.seconds, 0)) : '—'],
     ['Current streak', plural(streak.current, 'day')],
     ['Longest streak', plural(streak.longest, 'day')],
-    ['Days read', String(days.size)],
+    ['Days read', formatCount(days.size)],
   ];
 
   return (
@@ -58,27 +62,39 @@ export function StatsPage() {
           </div>
         ))}
       </dl>
+      <p className={styles.since}>
+        {since
+          ? `Time and words counted since ${dayName.format(dateOf(since))}.`
+          : 'Time and words start counting with the next chapter you finish.'}{' '}
+        Chapters read includes everything marked read.
+      </p>
 
       <section className={styles.section}>
         <h2 className={styles.heading}>Last 30 days</h2>
-        <p className={styles.caption}>
-          {plural(recentChapters, 'chapter')} · {formatDuration(recentSeconds)}
-        </p>
-        <ol className={styles.bars} aria-label="Chapters finished per day">
-          {recent.map((day) => (
-            <li
-              key={day.day}
-              className={styles.bar}
-              title={`${dayName.format(dateOf(day.day))}: ${plural(day.chapters, 'chapter')}, ${formatDuration(day.seconds)}`}
-            >
-              <span style={{ height: `${(day.chapters / peak) * 100}%` }} />
-            </li>
-          ))}
-        </ol>
-        <div className={styles.axis}>
-          <span>{dayName.format(dateOf(recent[0].day))}</span>
-          <span>Today</span>
-        </div>
+        {recentChapters === 0 && recentSeconds < 60 ? (
+          <p className={styles.caption}>No chapters finished in the last 30 days yet.</p>
+        ) : (
+          <>
+            <p className={styles.caption}>
+              {plural(recentChapters, 'chapter')} · {formatDuration(recentSeconds)}
+            </p>
+            <ol className={styles.bars} aria-label="Chapters finished per day">
+              {recent.map((day) => (
+                <li
+                  key={day.day}
+                  className={styles.bar}
+                  title={`${dayName.format(dateOf(day.day))}: ${plural(day.chapters, 'chapter')}, ${formatDuration(day.seconds)}`}
+                >
+                  <span style={{ height: `${(day.chapters / peak) * 100}%` }} />
+                </li>
+              ))}
+            </ol>
+            <div className={styles.axis}>
+              <span>{dayName.format(dateOf(recent[0].day))}</span>
+              <span>Today</span>
+            </div>
+          </>
+        )}
       </section>
 
       {novels.length > 0 && (
@@ -96,7 +112,7 @@ export function StatsPage() {
                   <span className={styles.text}>
                     <span className={styles.title}>{novel.title}</span>
                     <span className={styles.meta}>
-                      {read} of {total} chapters
+                      {formatNumber(read)} of {plural(total, 'chapter')}
                       {seconds >= 60 && ` · ${formatDuration(seconds)}`}
                     </span>
                     <span className={styles.progress}>
@@ -126,11 +142,6 @@ export function StatsPage() {
           </ul>
         </section>
       )}
-
-      <p className={styles.note}>
-        Time, words and the daily chart count from version 0.7.0 on, for chapters finished in the
-        reader. Chapters read includes everything marked read.
-      </p>
     </div>
   );
 }

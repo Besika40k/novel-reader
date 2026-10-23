@@ -11,6 +11,7 @@ import { addCategory, deleteCategory, renameCategory } from '@/db/categories';
 import { db } from '@/db/db';
 import { deleteDownloads } from '@/db/library';
 import { setPrefs, usePrefs } from '@/lib/prefs';
+import { formatNumber, plural } from '@/lib/format';
 import { toast } from '@/lib/toast';
 import { testProvider } from '@/quotes/ai';
 import { aiProviders, setAiSettings, useAiSettings } from '@/quotes/settings';
@@ -68,7 +69,7 @@ export function SettingsPage() {
     const urls = (await db.contents.toCollection().primaryKeys()) as string[];
     await deleteDownloads(urls);
     setConfirmDelete(false);
-    toast(`Deleted ${urls.length} downloaded chapters`);
+    toast(`Deleted ${plural(urls.length, 'downloaded chapter')}`);
   };
 
   const testKeys = async () => {
@@ -224,7 +225,7 @@ export function SettingsPage() {
         <dl className={styles.facts}>
           <div>
             <dt>Downloaded chapters</dt>
-            <dd>{downloaded ?? '…'}</dd>
+            <dd>{downloaded === undefined ? '…' : formatNumber(downloaded)}</dd>
           </div>
           {storage.usage !== undefined && (
             <div>

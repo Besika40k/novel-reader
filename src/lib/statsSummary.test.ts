@@ -71,7 +71,7 @@ describe('genreShares', () => {
 describe('formatting', () => {
   it.each([
     [0, '0 min'],
-    [20, 'under a minute'],
+    [20, '<1 min'],
     [45 * 60, '45 min'],
     [3 * 3600, '3 h'],
     [3 * 3600 + 20 * 60, '3 h 20 min'],
@@ -81,8 +81,8 @@ describe('formatting', () => {
 
   it.each([
     [980, '980'],
-    [1240, '1.2K'],
-    [12400, '12K'],
+    [2696, '2,696'],
+    [312_450, '312,450'],
     [1_340_000, '1.3M'],
   ])('formats %d', (value, text) => {
     expect(formatCount(value)).toBe(text);
