@@ -8,6 +8,7 @@ import { TopBar } from '@/components/TopBar';
 import { localDay } from '@/db/db';
 import { novelPath, readerPath, updateLibrary } from '@/db/library';
 import { groupUpdates, markUpdatesSeen, recentUpdates, type UpdateGroup } from '@/db/updates';
+import { plural } from '@/lib/format';
 import { toast } from '@/lib/toast';
 import styles from './UpdatesPage.module.scss';
 
@@ -58,7 +59,7 @@ export function UpdatesPage() {
     setChecking(true);
     try {
       const { added, failed } = await updateLibrary();
-      const found = added ? `${added} new chapter${added === 1 ? '' : 's'}` : 'No new chapters';
+      const found = added ? plural(added, 'new chapter') : 'No new chapters';
       toast(
         failed ? `${found}. ${failed} could not be checked.` : found,
         failed ? 'error' : 'info',
@@ -105,11 +106,7 @@ export function UpdatesPage() {
                     />
                     <span className={styles.text}>
                       <span className={styles.title}>{novel.title}</span>
-                      <span className={styles.count}>
-                        {chapters.length === 1
-                          ? '1 new chapter'
-                          : `${chapters.length} new chapters`}
-                      </span>
+                      <span className={styles.count}>{plural(chapters.length, 'new chapter')}</span>
                     </span>
                   </button>
                   <ul className={styles.chapters}>

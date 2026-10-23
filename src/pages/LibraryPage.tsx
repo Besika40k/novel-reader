@@ -10,6 +10,7 @@ import { db } from '@/db/db';
 import { libraryNovels, novelPath, updateLibrary } from '@/db/library';
 import { hasUpdatesSince, useUpdatesSeen } from '@/db/updates';
 import { usePageScroll } from '@/lib/scroll';
+import { plural } from '@/lib/format';
 import { toast } from '@/lib/toast';
 import styles from './LibraryPage.module.scss';
 
@@ -95,7 +96,7 @@ export function LibraryPage() {
     setUpdating(true);
     try {
       const { added, failed } = await updateLibrary();
-      const found = added ? `${added} new chapter${added === 1 ? '' : 's'}` : 'No new chapters';
+      const found = added ? plural(added, 'new chapter') : 'No new chapters';
       toast(
         failed ? `${found}. ${failed} could not be checked.` : found,
         failed ? 'error' : 'info',

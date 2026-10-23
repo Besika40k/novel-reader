@@ -164,8 +164,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.note {
-  margin: 18px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+.since {
+  margin: 10px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
   color: var(--muted);
   font-size: 0.8rem;
 }

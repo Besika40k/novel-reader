@@ -38,16 +38,13 @@ import { errorMessage } from '@/lib/async';
 import { usePageScroll } from '@/lib/scroll';
 import { toast } from '@/lib/toast';
 import { sources } from '@/sources';
+import { plural } from '@/lib/format';
 import styles from './NovelPage.module.scss';
 
 // Opening a novel re-checks for new chapters when the last check is older than this.
 const STALE_MS = 30 * 60 * 1000;
 
 /** "Chapter 250: Surrounded" → "Chapter 250", for compact labels. */
-function plural(count: number, word: string): string {
-  return `${count} ${word}${count === 1 ? '' : 's'}`;
-}
-
 export function NovelPage() {
   const { novelId = '' } = useParams();
   const navigate = useNavigate();

@@ -6,6 +6,7 @@ import { backupFileName, createBackup, parseBackup, restoreBackup, type Backup }
 import { db } from '@/db/db';
 import { canSaveSilently, saveTextFile, shareTextFile } from '@/lib/files';
 import { setPrefs, usePrefs } from '@/lib/prefs';
+import { plural } from '@/lib/format';
 import { toast } from '@/lib/toast';
 import styles from '@/pages/SettingsPage.module.scss';
 import { Button, Spinner } from './Button';
@@ -88,7 +89,7 @@ export function BackupSection() {
       </dl>
       <SwitchRow
         label="Include downloaded chapters"
-        hint={`${downloaded ?? 0} chapters. Makes the file much larger; they can be downloaded again.`}
+        hint={`${plural(downloaded ?? 0, 'chapter')}. Makes the file much larger; they can be downloaded again.`}
         checked={chapters}
         onChange={setChapters}
       />

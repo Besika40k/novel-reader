@@ -4,6 +4,7 @@ import { TopBar } from '@/components/TopBar';
 import { growth, levelFor } from '@/pet/growth';
 import { Serpent } from '@/pet/Serpent';
 import { ensurePet, feedPet, petState } from '@/pet/store';
+import { formatNumber, plural } from '@/lib/format';
 import styles from './PetPage.module.scss';
 
 /** How long the morsels fly before the meal is reported and saved. */
@@ -65,7 +66,7 @@ export function PetPage() {
             <span style={{ width: `${Math.round(g.levelProgress * 100)}%` }} />
           </div>
           <p className={styles.hint}>
-            {g.toNextLevel} chapter{g.toNextLevel === 1 ? '' : 's'} to level {g.level + 1}
+            {plural(g.toNextLevel, 'chapter')} to level {g.level + 1}
             {g.next && ` · becomes a ${g.next.name} at level ${g.next.level}`}
           </p>
           <p className={styles.blurb}>{g.stage.blurb}</p>
@@ -75,8 +76,8 @@ export function PetPage() {
           <div className={styles.meal} role="status">
             {meal.firstVisit ? (
               <p>
-                It hatched and gulped down the {state.food} chapters you'd already read, growing
-                straight into a {g.stage.name}.
+                It hatched and gulped down the {formatNumber(state.food)} chapters you'd already
+                read, growing straight into a {g.stage.name}.
               </p>
             ) : (
               meal.eaten > 0 && (
@@ -92,7 +93,7 @@ export function PetPage() {
         <dl className={styles.facts}>
           <div>
             <dt>Chapters eaten</dt>
-            <dd>{state.food}</dd>
+            <dd>{formatNumber(state.food)}</dd>
           </div>
           <div>
             <dt>Longest streak</dt>
