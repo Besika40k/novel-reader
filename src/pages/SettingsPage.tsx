@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Trash } from 'lucide-react';
 import { useLocation } from 'react-router';
+import { BackupSection } from '@/components/BackupSection';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { ReaderSettings } from '@/components/ReaderSettings';
 import { SwitchRow } from '@/components/Switch';
@@ -234,6 +235,8 @@ export function SettingsPage() {
           {confirmDelete ? 'Tap again to delete them all' : 'Delete all downloaded chapters'}
         </Button>
       </section>
+
+      <BackupSection />
 
       <section className={styles.section}>
         <h2 className={styles.heading}>About</h2>

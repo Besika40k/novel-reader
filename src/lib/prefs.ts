@@ -11,6 +11,8 @@ export interface Prefs {
   justify: boolean;
   /** Hide the phone's status and navigation bars while reading. */
   immersive: boolean;
+  /** Save a backup to Documents once a week. */
+  autoBackup: boolean;
 }
 
 export const DEFAULT_PREFS: Prefs = {
@@ -20,6 +22,7 @@ export const DEFAULT_PREFS: Prefs = {
   lineHeight: 1.7,
   justify: false,
   immersive: true,
+  autoBackup: true,
 };
 
 // Also read by the inline script in index.html.
