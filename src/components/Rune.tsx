@@ -9,6 +9,8 @@ const RUNES = {
   dagaz: 'M2 3V21M14 3V21M2 3L14 21M14 3L2 21',
   /** ᚱ Raidho, "ride": the journey. Browse. */
   raidho: 'M4 2V22M4 2L12 7L4 12L12 22',
+  /** ᛇ Eihwaz, the yew: endurance, the world tree's axis. The serpent. */
+  eihwaz: 'M8 2V22M8 2L13 7M8 22L3 17',
   /** ᛏ Tiwaz, Tyr's rune: order and law. Settings. */
   tiwaz: 'M8 2V22M2 8L8 2L14 8',
 };

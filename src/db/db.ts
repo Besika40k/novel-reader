@@ -1,4 +1,5 @@
 import { Dexie, type EntityTable } from 'dexie';
+import type { Pet } from '@/pet/store';
 import type { ArchiveIndex } from '@/quotes/archive';
 
 /** IndexedDB can't index booleans, so flags are stored as 0 or 1. */
@@ -121,6 +122,7 @@ export const db = new Dexie('novel-reader') as Dexie & {
   archives: EntityTable<ArchiveIndex, 'novelId'>;
   history: EntityTable<HistoryEntry, 'id'>;
   stats: EntityTable<DayStats, 'id'>;
+  pet: EntityTable<Pet, 'id'>;
 };
 
 db.version(1).stores({
@@ -156,6 +158,8 @@ db.version(5).stores({ stats: 'id, day, novelId' });
 db.version(6).stores({
   chapters: 'url, novelId, [novelId+index], [novelId+read], [novelId+downloaded], foundAt',
 });
+
+db.version(7).stores({ pet: 'id' });
 
 db.on('populate', async (tx) => {
   await tx

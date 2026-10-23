@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { TabsLayout } from './components/TabsLayout';
 import { Toast } from './components/Toast';
@@ -11,6 +12,9 @@ import { SitePage } from './pages/SitePage';
 import { StatsPage } from './pages/StatsPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 
+// The pet's drawing and catalog load only when its tab is opened.
+const PetPage = lazy(() => import('./pages/PetPage').then((m) => ({ default: m.PetPage })));
+
 export function App() {
   return (
     <BrowserRouter>
@@ -20,6 +24,14 @@ export function App() {
           <Route path="history" element={<HistoryPage />} />
           <Route path="browse" element={<BrowsePage />} />
           <Route path="browse/:sourceId" element={<SitePage />} />
+          <Route
+            path="pet"
+            element={
+              <Suspense fallback={null}>
+                <PetPage />
+              </Suspense>
+            }
+          />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="novel/:novelId" element={<NovelPage />} />
