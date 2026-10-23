@@ -240,6 +240,10 @@ export async function saveProgress(url: string, progress: number): Promise<void>
   });
 }
 
+export async function setBookmark(url: string, bookmarked: boolean): Promise<void> {
+  await db.chapters.update(url, { bookmarked: bookmarked ? 1 : 0 });
+}
+
 export async function markRead(urls: string[], read: boolean): Promise<void> {
   await db.chapters
     .where('url')

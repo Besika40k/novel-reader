@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore, type FormEvent 
 import { useLiveQuery } from 'dexie-react-hooks';
 import {
   ArrowDownUp,
+  Bookmark,
   BookmarkCheck,
   BookmarkPlus,
   BookOpen,
@@ -26,6 +27,7 @@ import {
   isRefreshing,
   markRead,
   readerPath,
+  setBookmark,
   refreshNovel,
   removeFromLibrary,
   setCategory,
@@ -64,6 +66,7 @@ export function NovelPage() {
   const refreshing = useSyncExternalStore(subscribeRefreshing, () => isRefreshing(novelId));
   const [error, setError] = useState<string>();
   const [newestFirst, setNewestFirst] = useState(false);
+  const [bookmarksOnly, setBookmarksOnly] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [sheet, setSheet] = useState<'library' | 'download' | 'royalRoad'>();
   const [actionsFor, setActionsFor] = useState<Chapter>();
@@ -109,7 +112,9 @@ export function NovelPage() {
   }
 
   const list = chapters ?? [];
-  const ordered = newestFirst ? [...list].reverse() : list;
+  const shown = bookmarksOnly ? list.filter((chapter) => chapter.bookmarked) : list;
+  const ordered = newestFirst ? [...shown].reverse() : shown;
+  const hasBookmarks = list.some((chapter) => chapter.bookmarked);
   const next = novel ? continueChapter(list, novel.lastReadUrl) : undefined;
   const started = list.some((chapter) => chapter.read || chapter.progress > 0);
   const category = categories?.find((c) => c.id === novel?.categoryId);
@@ -279,6 +284,15 @@ export function NovelPage() {
         >
           <ArrowDownUp />
         </IconButton>
+        {(hasBookmarks || bookmarksOnly) && (
+          <IconButton
+            label={bookmarksOnly ? 'Show all chapters' : 'Show bookmarked chapters'}
+            aria-pressed={bookmarksOnly}
+            onClick={() => setBookmarksOnly((value) => !value)}
+          >
+            <Bookmark fill={bookmarksOnly ? 'currentColor' : 'none'} />
+          </IconButton>
+        )}
         <IconButton
           label="Download chapters"
           disabled={list.length === 0}
@@ -406,6 +420,15 @@ export function NovelPage() {
               }}
             >
               {actionsFor.read ? 'Mark as unread' : 'Mark as read'}
+            </Button>
+            <Button
+              block
+              onClick={async () => {
+                await setBookmark(actionsFor.url, !actionsFor.bookmarked);
+                closeActions();
+              }}
+            >
+              {actionsFor.bookmarked ? 'Remove bookmark' : 'Bookmark'}
             </Button>
             <Button
               block

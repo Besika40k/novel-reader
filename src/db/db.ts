@@ -44,6 +44,8 @@ export interface Chapter {
   downloaded: Flag;
   /** When a library check found it; unset for chapters known from the start. */
   foundAt?: number;
+  /** 1 when bookmarked, to come back to. */
+  bookmarked?: Flag;
 }
 
 /** A chapter's text exactly as the source served it. Fixes are applied when it's shown. */
