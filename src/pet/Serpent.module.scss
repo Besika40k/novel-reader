@@ -1,16 +1,18 @@
-// The drawing has hundreds of parts, so nothing inside it animates: the frame breathes as one
-// composited layer (transform only), and the morsels fly on their own layer above it.
+// The frame matches the pictures' background (#7b939d), so their edges disappear into it.
 
 .frame {
   position: relative;
   overflow: hidden;
+  aspect-ratio: 1;
   border-radius: var(--radius);
+  background: #7b939d;
 }
 
-.svg {
+.image {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   animation: breathe 6s ease-in-out infinite;
   will-change: transform;
 }
@@ -23,6 +25,7 @@
   pointer-events: none;
 }
 
+// Morsels rise from the bottom into the serpent at the middle of the picture.
 .morsel {
   fill: #fbf6e9;
   stroke: #2b211b;
@@ -53,13 +56,13 @@
   }
 
   to {
-    transform: translate(var(--dx), var(--dy)) scale(0.3);
+    transform: translate(0, -230px) scale(0.3);
     opacity: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .svg {
+  .image {
     animation: none;
   }
 }
