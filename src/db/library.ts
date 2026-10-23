@@ -1,4 +1,5 @@
 import { Dexie } from 'dexie';
+import { mapLimit } from '@/lib/async';
 import { fetchDataUrl } from '@/lib/http';
 import { addStats, countWords } from './stats';
 import { noteLibraryCheck } from './updates';
@@ -99,17 +100,32 @@ export function isRefreshing(novelId: string): boolean {
   return refreshing.has(novelId);
 }
 
-async function doRefresh(novelId: string): Promise<number> {
+/** How often a library check also refetches a novel's details (summary, genres, status, cover). */
+const DETAILS_MS = 7 * 24 * 60 * 60 * 1000;
+/** Sites a library check works on at once; novels from one site are checked one at a time. */
+const SITES_AT_ONCE = 3;
+
+/** Whether a library check should refetch a novel's details page as well as its chapter list. */
+export function needsDetails(novel: Pick<Novel, 'detailsAt'>, now = Date.now()): boolean {
+  return novel.detailsAt === undefined || now - novel.detailsAt >= DETAILS_MS;
+}
+
+async function doRefresh(novelId: string, withDetails: boolean): Promise<number> {
   const novel = await db.novels.get(novelId);
   if (!novel) throw new Error('This novel is no longer stored.');
   const source = getSource(novel.sourceId);
   const knownCount = await db.chapters.where('novelId').equals(novelId).count();
   const [details, refs] = await Promise.all([
-    source.getNovel(novel.url),
+    withDetails || knownCount === 0 ? source.getNovel(novel.url) : undefined,
     source.getChapterList(novel.url, { knownCount }),
   ]);
   // A brand-new novel's whole list isn't news; only growth of a known list is.
   const added = await mergeChapters(novelId, refs, knownCount ? Date.now() : undefined);
+  const now = Date.now();
+  if (!details) {
+    await db.novels.update(novelId, { checkedAt: now });
+    return added;
+  }
   await db.novels.update(novelId, {
     title: details.title,
     author: details.author,
@@ -117,7 +133,8 @@ async function doRefresh(novelId: string): Promise<number> {
     genres: details.genres,
     status: details.status,
     coverUrl: details.coverUrl ?? novel.coverUrl,
-    checkedAt: Date.now(),
+    checkedAt: now,
+    detailsAt: now,
   });
   const coverUrl = details.coverUrl ?? novel.coverUrl;
   if (coverUrl && (!novel.coverData || coverUrl !== novel.coverUrl)) {
@@ -129,11 +146,17 @@ async function doRefresh(novelId: string): Promise<number> {
   return knownCount === 0 ? 0 : added;
 }
 
-/** Fetches a novel's details and chapter list. Returns the number of new chapters. */
-export function refreshNovel(novelId: string): Promise<number> {
+/**
+ * Fetches a novel's chapter list and, unless `details` is false, its details page. Returns the
+ * number of new chapters.
+ */
+export function refreshNovel(
+  novelId: string,
+  { details = true }: { details?: boolean } = {},
+): Promise<number> {
   const running = refreshing.get(novelId);
   if (running) return running;
-  const task = doRefresh(novelId).finally(() => {
+  const task = doRefresh(novelId, details).finally(() => {
     refreshing.delete(novelId);
     notifyRefreshing();
   });
@@ -142,19 +165,28 @@ export function refreshNovel(novelId: string): Promise<number> {
   return task;
 }
 
-/** Refreshes every library novel, one at a time. Returns the number of new chapters found. */
+/**
+ * Checks every library novel for new chapters. Only the chapter list is fetched, plus the details
+ * page once a week, which halves the requests; different sites are checked side by side, one
+ * novel at a time per site. Returns the number of new chapters found.
+ */
 export async function updateLibrary(): Promise<{ added: number; failed: number }> {
   noteLibraryCheck();
   const novels = await db.novels.where('inLibrary').equals(1).toArray();
+  const bySite = new Map<string, Novel[]>();
+  for (const novel of novels)
+    bySite.set(novel.sourceId, [...(bySite.get(novel.sourceId) ?? []), novel]);
   let added = 0;
   let failed = 0;
-  for (const novel of novels) {
-    try {
-      added += await refreshNovel(novel.id);
-    } catch {
-      failed += 1;
+  await mapLimit([...bySite.values()], SITES_AT_ONCE, async (siteNovels) => {
+    for (const novel of siteNovels) {
+      try {
+        added += await refreshNovel(novel.id, { details: needsDetails(novel) });
+      } catch {
+        failed += 1;
+      }
     }
-  }
+  });
   return { added, failed };
 }
 
