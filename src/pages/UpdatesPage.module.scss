@@ -1,0 +1,67 @@
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--safe-bottom) + 32px);
+}
+
+.note {
+  padding: 32px var(--gutter);
+  color: var(--muted);
+  text-align: center;
+}
+
+.label {
+  @include section-label;
+
+  padding: 16px calc(var(--gutter) + var(--safe-right)) 4px calc(var(--gutter) + var(--safe-left));
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  @include pressable;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 8px calc(var(--gutter) + var(--safe-right)) 8px calc(var(--gutter) + var(--safe-left));
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+
+  &[data-read] {
+    opacity: 0.55;
+  }
+}
+
+.thumb {
+  flex: none;
+  width: 40px;
+}
+
+.text {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.title {
+  @include clamp-lines(1);
+
+  font-weight: 600;
+}
+
+.chapter {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

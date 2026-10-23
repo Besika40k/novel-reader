@@ -10,6 +10,7 @@ import { TopBar } from '@/components/TopBar';
 import { addCategory, deleteCategory, renameCategory } from '@/db/categories';
 import { db } from '@/db/db';
 import { deleteDownloads } from '@/db/library';
+import { setPrefs, usePrefs } from '@/lib/prefs';
 import { toast } from '@/lib/toast';
 import { testProvider } from '@/quotes/ai';
 import { aiProviders, setAiSettings, useAiSettings } from '@/quotes/settings';
@@ -28,6 +29,7 @@ export function SettingsPage() {
   const [newCategory, setNewCategory] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const ai = useAiSettings();
+  const prefs = usePrefs();
   const [testing, setTesting] = useState(false);
   const { hash } = useLocation();
 
@@ -169,7 +171,13 @@ export function SettingsPage() {
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.heading}>Library categories</h2>
+        <h2 className={styles.heading}>Library</h2>
+        <SwitchRow
+          label="Check for new chapters automatically"
+          hint="Every 12 hours, when the app opens or comes back, never while reading. New chapters are listed under Updates (the bell in Library)."
+          checked={prefs.autoUpdate}
+          onChange={(autoUpdate) => setPrefs({ autoUpdate })}
+        />
         <ul className={styles.categories}>
           {categories?.map((category) => (
             <li key={category.id} className={styles.category}>

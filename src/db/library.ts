@@ -1,6 +1,7 @@
 import { Dexie } from 'dexie';
 import { fetchDataUrl } from '@/lib/http';
 import { addStats, countWords } from './stats';
+import { noteLibraryCheck } from './updates';
 import { getSource, sourceForUrl } from '@/sources';
 import type { ChapterRef, NovelSummary, Source } from '@/sources/types';
 import {
@@ -61,14 +62,21 @@ export async function novelFromLink(link: string): Promise<string> {
   return ensureNovel(source, { url: source.novelUrl(key), title: titleFromKey(key) });
 }
 
-/** Adds new chapters and updates titles of known ones, keeping reading state. Returns how many are new. */
-async function mergeChapters(novelId: string, refs: ChapterRef[]): Promise<number> {
+/**
+ * Adds new chapters and updates titles of known ones, keeping reading state. New chapters get
+ * `foundAt` when given, for the Updates page. Returns how many are new.
+ */
+async function mergeChapters(
+  novelId: string,
+  refs: ChapterRef[],
+  foundAt?: number,
+): Promise<number> {
   return db.transaction('rw', db.chapters, async () => {
     const existing = await db.chapters.bulkGet(refs.map((ref) => ref.url));
     const rows: Chapter[] = refs.map((ref, i) => {
       const known = existing[i];
       if (known) return { ...known, index: ref.index, title: ref.title, released: ref.released };
-      return { ...ref, novelId, read: 0, progress: 0, downloaded: 0 };
+      return { ...ref, novelId, read: 0, progress: 0, downloaded: 0, foundAt };
     });
     await db.chapters.bulkPut(rows);
     return existing.filter((row) => !row).length;
@@ -100,7 +108,8 @@ async function doRefresh(novelId: string): Promise<number> {
     source.getNovel(novel.url),
     source.getChapterList(novel.url, { knownCount }),
   ]);
-  const added = await mergeChapters(novelId, refs);
+  // A brand-new novel's whole list isn't news; only growth of a known list is.
+  const added = await mergeChapters(novelId, refs, knownCount ? Date.now() : undefined);
   await db.novels.update(novelId, {
     title: details.title,
     author: details.author,
@@ -117,7 +126,6 @@ async function doRefresh(novelId: string): Promise<number> {
       .then((coverData) => db.novels.update(novelId, { coverData }))
       .catch(() => undefined);
   }
-  // A brand-new novel's whole list counts as "added"; only report growth of a known list.
   return knownCount === 0 ? 0 : added;
 }
 
@@ -136,6 +144,7 @@ export function refreshNovel(novelId: string): Promise<number> {
 
 /** Refreshes every library novel, one at a time. Returns the number of new chapters found. */
 export async function updateLibrary(): Promise<{ added: number; failed: number }> {
+  noteLibraryCheck();
   const novels = await db.novels.where('inLibrary').equals(1).toArray();
   let added = 0;
   let failed = 0;

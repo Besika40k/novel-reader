@@ -13,6 +13,8 @@ export interface Prefs {
   immersive: boolean;
   /** Save a backup to Documents once a week. */
   autoBackup: boolean;
+  /** Check the library for new chapters every 12 hours, when the app opens. */
+  autoUpdate: boolean;
 }
 
 export const DEFAULT_PREFS: Prefs = {
@@ -23,6 +25,7 @@ export const DEFAULT_PREFS: Prefs = {
   justify: false,
   immersive: true,
   autoBackup: true,
+  autoUpdate: true,
 };
 
 // Also read by the inline script in index.html.
