@@ -8,6 +8,10 @@ export interface Prefs {
   /** Reader text size in px. */
   fontSize: number;
   lineHeight: number;
+  /** Space after each paragraph, in em. */
+  paragraphGap: number;
+  /** Space either side of the text, in px. */
+  margin: number;
   justify: boolean;
   /** Hide the phone's status and navigation bars while reading. */
   immersive: boolean;
@@ -22,6 +26,8 @@ export const DEFAULT_PREFS: Prefs = {
   readerFont: 'serif',
   fontSize: 19,
   lineHeight: 1.7,
+  paragraphGap: 0.9,
+  margin: 22,
   justify: false,
   immersive: true,
   autoBackup: true,

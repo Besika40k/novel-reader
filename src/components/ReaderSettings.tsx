@@ -20,6 +20,39 @@ const THEMES: { value: Prefs['theme']; label: string; bg: string; ink: string }[
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+interface StepperProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  /** Labels for the minus and plus buttons. */
+  less: string;
+  more: string;
+  format?: (value: number) => string;
+  onChange: (value: number) => void;
+}
+
+function Stepper({ label, value, min, max, step, less, more, format, onChange }: StepperProps) {
+  // Rounded to the step's decimals, so 0.1 steps don't drift into 1.7000000000000002.
+  const decimals = step < 1 ? 1 : 0;
+  const change = (by: number) => onChange(clamp(Number((value + by).toFixed(decimals)), min, max));
+  return (
+    <div className={styles.row}>
+      <span className={styles.label}>{label}</span>
+      <div className={styles.stepper}>
+        <IconButton label={less} disabled={value <= min + 1e-9} onClick={() => change(-step)}>
+          <Minus />
+        </IconButton>
+        <span className={styles.value}>{format ? format(value) : value}</span>
+        <IconButton label={more} disabled={value >= max - 1e-9} onClick={() => change(step)}>
+          <Plus />
+        </IconButton>
+      </div>
+    </div>
+  );
+}
+
 export function ReaderSettings() {
   const prefs = usePrefs();
   return (
@@ -63,55 +96,48 @@ export function ReaderSettings() {
         </div>
       </div>
 
-      <div className={styles.row}>
-        <span className={styles.label}>Text size</span>
-        <div className={styles.stepper}>
-          <IconButton
-            label="Smaller text"
-            disabled={prefs.fontSize <= 14}
-            onClick={() => setPrefs({ fontSize: clamp(prefs.fontSize - 1, 14, 30) })}
-          >
-            <Minus />
-          </IconButton>
-          <span className={styles.value}>{prefs.fontSize}</span>
-          <IconButton
-            label="Larger text"
-            disabled={prefs.fontSize >= 30}
-            onClick={() => setPrefs({ fontSize: clamp(prefs.fontSize + 1, 14, 30) })}
-          >
-            <Plus />
-          </IconButton>
-        </div>
-      </div>
-
-      <div className={styles.row}>
-        <span className={styles.label}>Line spacing</span>
-        <div className={styles.stepper}>
-          <IconButton
-            label="Tighter lines"
-            disabled={prefs.lineHeight <= 1.3}
-            onClick={() =>
-              setPrefs({
-                lineHeight: clamp(Math.round((prefs.lineHeight - 0.1) * 10) / 10, 1.3, 2.2),
-              })
-            }
-          >
-            <Minus />
-          </IconButton>
-          <span className={styles.value}>{prefs.lineHeight.toFixed(1)}</span>
-          <IconButton
-            label="Looser lines"
-            disabled={prefs.lineHeight >= 2.2}
-            onClick={() =>
-              setPrefs({
-                lineHeight: clamp(Math.round((prefs.lineHeight + 0.1) * 10) / 10, 1.3, 2.2),
-              })
-            }
-          >
-            <Plus />
-          </IconButton>
-        </div>
-      </div>
+      <Stepper
+        label="Text size"
+        value={prefs.fontSize}
+        min={14}
+        max={30}
+        step={1}
+        less="Smaller text"
+        more="Larger text"
+        onChange={(fontSize) => setPrefs({ fontSize })}
+      />
+      <Stepper
+        label="Line spacing"
+        value={prefs.lineHeight}
+        min={1.3}
+        max={2.2}
+        step={0.1}
+        less="Tighter lines"
+        more="Looser lines"
+        format={(value) => value.toFixed(1)}
+        onChange={(lineHeight) => setPrefs({ lineHeight })}
+      />
+      <Stepper
+        label="Paragraph spacing"
+        value={prefs.paragraphGap}
+        min={0.3}
+        max={2}
+        step={0.1}
+        less="Less space between paragraphs"
+        more="More space between paragraphs"
+        format={(value) => value.toFixed(1)}
+        onChange={(paragraphGap) => setPrefs({ paragraphGap })}
+      />
+      <Stepper
+        label="Side margins"
+        value={prefs.margin}
+        min={8}
+        max={48}
+        step={4}
+        less="Narrower margins"
+        more="Wider margins"
+        onChange={(margin) => setPrefs({ margin })}
+      />
 
       <SwitchRow
         label="Justify text"
