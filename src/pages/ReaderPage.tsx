@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { Capacitor, SystemBars } from '@capacitor/core';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowLeft, ArrowUpToLine, ChevronLeft, ChevronRight, Type } from 'lucide-react';
+import { ArrowLeft, ArrowUpToLine, Bookmark, ChevronLeft, ChevronRight, Type } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Inline } from '@/components/Inline';
@@ -27,6 +27,7 @@ import {
   readerPath,
   chaptersAhead,
   saveProgress,
+  setBookmark,
   setLastRead,
 } from '@/db/library';
 import { errorMessage, sleep } from '@/lib/async';
@@ -325,6 +326,14 @@ export function ReaderPage() {
           <span className={styles.novelTitle}>{novel?.title}</span>
           <span className={styles.chapterTitle}>{chapter?.title}</span>
         </div>
+        <IconButton
+          label={chapter?.bookmarked ? 'Remove bookmark' : 'Bookmark this chapter'}
+          aria-pressed={chapter?.bookmarked === 1}
+          disabled={!chapter}
+          onClick={() => chapter && void setBookmark(chapter.url, !chapter.bookmarked)}
+        >
+          <Bookmark fill={chapter?.bookmarked ? 'currentColor' : 'none'} />
+        </IconButton>
         <IconButton label="Reading settings" onClick={() => setSettingsOpen(true)}>
           <Type />
         </IconButton>

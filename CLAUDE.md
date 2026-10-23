@@ -74,12 +74,12 @@ natively. Public repo, single user.
 
 ## Current work
 
-- 0.7.0 (2026-10-23): backups (Settings, to Documents/LN Jormungandr, weekly by itself, keys never
-  included; `src/db/backup.ts`), reading statistics (`stats` table per day and novel, reading time
-  from scroll/tap events in `useReadingTime`, StatsPage from History), Updates (chapters get
-  `foundAt`, UpdatesPage from the Library bell, a check every 12 hours outside the reader).
-  Next (`docs/jormungandr-pet.md`): the smaller LNReader ideas and the Jormungandr pet; text to
-  speech only with a free voice the owner likes.
+- 0.8.0 (2026-10-23): the Jormungandr pet (`src/pet/`, lazy Serpent tab; feeds on `stats`
+  chapters, so the reader does nothing extra; SVG from parts, CSS transform/opacity motion only),
+  paragraph spacing and side margins, download ahead (0–10 chapters), tap to turn pages, chapter
+  bookmarks. 0.7.0 brought backups, reading statistics and Updates.
+- Dropped at the owner's request: auto-scroll and volume-button paging. Open: moving a novel
+  between NovelPhoenix and NovelFire; text to speech only with a free voice he likes.
 - No paid APIs: the owner won't buy API credits. AI features use free tiers only (Groq by
   default, Gemini's free tier as a fallback).
 - The owner's Claude plan has usage limits, so keep sessions lean: targeted reads and few

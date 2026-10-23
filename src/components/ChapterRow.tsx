@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { ArrowDownToLine, CircleAlert, CircleCheck, Clock } from 'lucide-react';
+import { ArrowDownToLine, Bookmark, CircleAlert, CircleCheck, Clock } from 'lucide-react';
 import type { Chapter } from '@/db/db';
 import type { JobState } from '@/downloads/queue';
 import { IconButton, Spinner } from './Button';
@@ -42,7 +42,10 @@ export const ChapterRow = memo(function ChapterRow({
           onActions(chapter);
         }}
       >
-        <span className={styles.title}>{chapter.title}</span>
+        <span className={styles.title}>
+          {chapter.bookmarked === 1 && <Bookmark className={styles.mark} aria-label="Bookmarked" />}
+          {chapter.title}
+        </span>
         <span className={styles.sub}>
           {[chapter.released, reading && `${Math.round(chapter.progress * 100)}% read`]
             .filter(Boolean)

@@ -32,7 +32,8 @@ voices (free and very good, but an unofficial endpoint that can stop working). C
 read by each on the phone first.
 
 Suggested order: backup first (it protects everything after it), then reading statistics (the pet
-needs them), then library updates (0.7.0). The smaller ones and the pet come in a later version.
+needs them), then library updates (0.7.0). The pet, reader layout, download ahead, tap to turn and bookmarks
+followed in 0.8.0. Auto-scroll and volume-button paging were dropped: the owner doesn't want them.
 
 ## Part 2: the Jormungandr pet
 
