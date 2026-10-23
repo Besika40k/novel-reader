@@ -13,6 +13,9 @@ natively. Public repo, single user.
   Android Studio's `jbr`; the PATH Java is 8.
 - The Gradle wrapper is pinned to 9.1.0 (Capacitor's template ships 8.14.3): Android Studio's
   bundled JDK is 25, which Gradle 8 can't run ("Unsupported class file major version 69").
+- `@capacitor/filesystem` compiles with a Java 21 toolchain; `android/settings.gradle` applies the
+  foojay resolver so Gradle downloads it. `npx cap run android` fails here ("'gradlew' is not
+  recognized"): run `./gradlew assembleDebug` in `android/`, then `adb install -r`.
 
 ## Architecture
 
