@@ -58,10 +58,21 @@
 .continue {
   flex: 1;
   min-width: 0;
+  justify-content: flex-start;
 }
 
-.ellipsis {
+.continueText {
+  display: grid;
+  min-width: 0;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.continueChapter {
   overflow: hidden;
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
   text-overflow: ellipsis;
 }
 

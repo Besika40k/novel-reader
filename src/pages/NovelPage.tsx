@@ -44,11 +44,6 @@ import styles from './NovelPage.module.scss';
 const STALE_MS = 30 * 60 * 1000;
 
 /** "Chapter 250: Surrounded" → "Chapter 250", for compact labels. */
-function shortTitle(title: string): string {
-  const match = /^(chapter\s+[\d.]+)/i.exec(title);
-  return match ? match[1] : title;
-}
-
 function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? '' : 's'}`;
 }
@@ -216,9 +211,15 @@ export function NovelPage() {
               onClick={() => next && openChapter(next)}
               className={styles.continue}
             >
-              <span className={styles.ellipsis}>
-                {next && started ? `Continue · ${shortTitle(next.title)}` : 'Start reading'}
-              </span>
+              {next && started ? (
+                // Two lines, so the chapter is never cut down to "Chapter 7…".
+                <span className={styles.continueText}>
+                  Continue
+                  <span className={styles.continueChapter}>{next.title}</span>
+                </span>
+              ) : (
+                'Start reading'
+              )}
             </Button>
             <Button
               icon={novel.inLibrary ? <BookmarkCheck /> : <BookmarkPlus />}
