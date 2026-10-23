@@ -75,3 +75,37 @@ export async function recentUpdates(now = Date.now()): Promise<Update[]> {
     return novel ? [{ chapter, novel }] : [];
   });
 }
+
+export interface UpdateGroup {
+  /** The local date the chapters were found, YYYY-MM-DD. */
+  day: string;
+  novel: Novel;
+  /** Newest first. */
+  chapters: Chapter[];
+}
+
+/**
+ * Updates grouped by the day they were found and then by novel, so a novel with five new chapters
+ * is one entry rather than five. Days and novels keep the newest-first order of `updates`.
+ */
+export function groupUpdates(
+  updates: readonly Update[],
+  dayOf: (time: number) => string,
+): UpdateGroup[] {
+  const groups: UpdateGroup[] = [];
+  const byKey = new Map<string, UpdateGroup>();
+  for (const { chapter, novel } of updates) {
+    const day = dayOf(chapter.foundAt ?? 0);
+    const key = `${day}|${novel.id}`;
+    let group = byKey.get(key);
+    if (!group) {
+      group = { day, novel, chapters: [] };
+      byKey.set(key, group);
+      groups.push(group);
+    }
+    group.chapters.push(chapter);
+  }
+  // One check finds a batch at the same moment, so order within a novel by position instead.
+  for (const group of groups) group.chapters.sort((a, b) => b.index - a.index);
+  return groups;
+}

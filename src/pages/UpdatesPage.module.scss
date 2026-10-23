@@ -15,29 +15,30 @@
   padding: 16px calc(var(--gutter) + var(--safe-right)) 4px calc(var(--gutter) + var(--safe-left));
 }
 
-.list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+// One novel's new chapters on a day: the novel once, its chapters under the title.
+.group {
+  --indent: calc(var(--gutter) + var(--safe-left) + 40px + 14px);
+
+  padding-bottom: 6px;
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
 }
 
-.entry {
+.novel {
   @include pressable;
 
   display: flex;
   align-items: center;
   gap: 14px;
   width: 100%;
-  padding: 8px calc(var(--gutter) + var(--safe-right)) 8px calc(var(--gutter) + var(--safe-left));
+  padding: 10px calc(var(--gutter) + var(--safe-right)) 4px calc(var(--gutter) + var(--safe-left));
   border: 0;
   background: transparent;
   color: inherit;
   font: inherit;
   text-align: left;
-
-  &[data-read] {
-    opacity: 0.55;
-  }
 }
 
 .thumb {
@@ -48,7 +49,7 @@
 .text {
   display: grid;
   flex: 1;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
@@ -58,10 +59,42 @@
   font-weight: 600;
 }
 
-.chapter {
-  overflow: hidden;
+.count {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+}
+
+.chapters {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chapter,
+.more {
+  @include pressable;
+
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 calc(var(--gutter) + var(--safe-right)) 0 var(--indent);
+  overflow: hidden;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.chapter[data-read] {
+  opacity: 0.5;
+}
+
+.more {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
 }
