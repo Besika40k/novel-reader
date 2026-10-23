@@ -88,6 +88,21 @@ export interface HistoryEntry {
   readAt: number;
 }
 
+/** Reading done on a day in one novel, for the statistics page. Counted from 0.7.0 on. */
+export interface DayStats {
+  /** `${day}|${novelId}`, like HistoryEntry. */
+  id: string;
+  novelId: string;
+  /** The local date, YYYY-MM-DD. */
+  day: string;
+  /** Time spent reading, not counting long pauses. */
+  seconds: number;
+  /** Chapters finished in the reader (marking chapters read by hand doesn't count). */
+  chapters: number;
+  /** Words in those chapters. */
+  words: number;
+}
+
 /** The local date of a time, as YYYY-MM-DD. */
 export function localDay(time: number): string {
   const date = new Date(time);
@@ -103,6 +118,7 @@ export const db = new Dexie('novel-reader') as Dexie & {
   fixes: EntityTable<QuoteFix, 'url'>;
   archives: EntityTable<ArchiveIndex, 'novelId'>;
   history: EntityTable<HistoryEntry, 'id'>;
+  stats: EntityTable<DayStats, 'id'>;
 };
 
 db.version(1).stores({
@@ -133,6 +149,8 @@ db.version(4)
     });
     await tx.table('history').bulkPut(entries);
   });
+
+db.version(5).stores({ stats: 'id, day, novelId' });
 
 db.on('populate', async (tx) => {
   await tx

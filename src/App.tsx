@@ -8,6 +8,7 @@ import { NovelPage } from './pages/NovelPage';
 import { ReaderPage } from './pages/ReaderPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SitePage } from './pages/SitePage';
+import { StatsPage } from './pages/StatsPage';
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
         </Route>
         <Route path="novel/:novelId" element={<NovelPage />} />
         <Route path="read/:novelId/:index" element={<ReaderPage />} />
+        <Route path="stats" element={<StatsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Toast />
