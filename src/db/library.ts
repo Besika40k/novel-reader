@@ -1,5 +1,6 @@
 import { Dexie } from 'dexie';
 import { fetchDataUrl } from '@/lib/http';
+import { addStats, countWords } from './stats';
 import { getSource, sourceForUrl } from '@/sources';
 import type { ChapterRef, NovelSummary, Source } from '@/sources/types';
 import {
@@ -198,11 +199,23 @@ export async function deleteDownloads(urls: string[]): Promise<void> {
   });
 }
 
-/** Saves the reading position; reaching the end marks the chapter read. */
+/**
+ * Saves the reading position; reaching the end marks the chapter read and, the first time,
+ * counts it in today's statistics.
+ */
 export async function saveProgress(url: string, progress: number): Promise<void> {
-  const changes: Partial<Chapter> = { progress };
-  if (progress >= 0.98) changes.read = 1;
-  await db.chapters.update(url, changes);
+  await db.transaction('rw', db.chapters, db.contents, db.stats, async () => {
+    const row = await db.chapters.get(url);
+    if (!row) return;
+    const finished = progress >= 0.98;
+    await db.chapters.update(url, finished ? { progress, read: 1 } : { progress });
+    if (!finished || row.read === 1) return;
+    const content = await db.contents.get(url);
+    await addStats(row.novelId, {
+      chapters: 1,
+      words: content ? countWords(content.paragraphs) : 0,
+    });
+  });
 }
 
 export async function markRead(urls: string[], read: boolean): Promise<void> {

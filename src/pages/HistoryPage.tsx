@@ -1,5 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
+import { ChartColumn } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { IconButton } from '@/components/Button';
 import { Cover } from '@/components/Cover';
 import { SwipeToDelete } from '@/components/SwipeToDelete';
 import { TopBar } from '@/components/TopBar';
@@ -39,7 +41,16 @@ export function HistoryPage() {
 
   return (
     <>
-      <TopBar display title="History" rune="dagaz" />
+      <TopBar
+        display
+        title="History"
+        rune="dagaz"
+        actions={
+          <IconButton label="Reading statistics" onClick={() => navigate('/stats')}>
+            <ChartColumn />
+          </IconButton>
+        }
+      />
       {items === undefined ? null : items.length === 0 ? (
         <p className={styles.note}>Chapters you read in the last week show up here.</p>
       ) : (

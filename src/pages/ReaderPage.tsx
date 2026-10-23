@@ -31,6 +31,7 @@ import {
 import { errorMessage } from '@/lib/async';
 import { readableParagraphs, type Paragraph } from '@/lib/junk';
 import { usePrefs } from '@/lib/prefs';
+import { useReadingTime } from '@/lib/useReadingTime';
 import { fixAhead, fixChapter, isCurrentFix, isSettledFix, useFixState } from '@/quotes/fixer';
 import { analyseChapter, applyFixes } from '@/quotes/rules';
 import { aiProviders, useAiSettings } from '@/quotes/settings';
@@ -136,6 +137,7 @@ export function ReaderPage() {
   const url = chapter?.url;
   const current = loaded?.url === url ? loaded : undefined;
   const ready = current?.content ? current.url : undefined;
+  useReadingTime(novelId, ready);
   const startAt = current?.startAt ?? 0;
 
   const stored = useLiveQuery(

@@ -1,0 +1,171 @@
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(var(--safe-bottom) + 32px);
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 8px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+}
+
+.figure {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+
+  dt {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.35rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.section {
+  display: grid;
+  gap: 10px;
+  margin: 8px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+  padding: 18px 0 8px;
+}
+
+.heading {
+  @include section-label;
+}
+
+.caption {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 96px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bar {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  height: 100%;
+
+  span {
+    width: 100%;
+    min-height: 2px;
+    border-radius: 3px 3px 0 0;
+    background: var(--primary);
+  }
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.novels,
+.genres {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.novel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.thumb {
+  flex: none;
+  width: 40px;
+}
+
+.text {
+  display: grid;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
+}
+
+.title {
+  @include clamp-lines(1);
+
+  font-weight: 600;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.progress,
+.genreBar {
+  overflow: hidden;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+  }
+}
+
+.genre {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.genreName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.genreBar {
+  height: 8px;
+  border-radius: 4px;
+
+  span {
+    background: var(--primary);
+  }
+}
+
+.share {
+  color: var(--muted);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: 18px calc(var(--gutter) + var(--safe-right)) 0 calc(var(--gutter) + var(--safe-left));
+  color: var(--muted);
+  font-size: 0.8rem;
+}
