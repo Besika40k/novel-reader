@@ -34,7 +34,8 @@ const hatch = { stage: 'hatchling' } as const;
 
 export const CATALOG: readonly Item[] = [
   // Skins, mostly from the app's palette.
-  { id: 'skin-slate', slot: 'skin', name: 'Slate', rule: hatch, color: '#3b4e51' },
+  { id: 'skin-bone', slot: 'skin', name: 'Bone', rule: hatch, color: '#eedcb6' },
+  { id: 'skin-slate', slot: 'skin', name: 'Slate', rule: hatch, color: '#5d7376' },
   { id: 'skin-sage', slot: 'skin', name: 'Sage', rule: hatch, color: '#8aa3a6' },
   { id: 'skin-rose', slot: 'skin', name: 'Rose', rule: { stage: 'snake' }, color: '#b8938f' },
   { id: 'skin-abyss', slot: 'skin', name: 'Abyss', rule: { stage: 'serpent' }, color: '#1c261a' },
@@ -74,16 +75,16 @@ export const CATALOG: readonly Item[] = [
     rule: { stage: 'world' },
     color: '#5fd3a6',
   },
-  { id: 'scene-forest', slot: 'scene', name: 'Forest floor', rule: hatch, color: '#24321f' },
-  { id: 'scene-cave', slot: 'scene', name: 'Cave', rule: { stage: 'snake' }, color: '#2a2622' },
-  { id: 'scene-fjord', slot: 'scene', name: 'Fjord', rule: { stage: 'serpent' }, color: '#2c4650' },
-  { id: 'scene-deep', slot: 'scene', name: 'Deep sea', rule: { stage: 'sea' }, color: '#0f2733' },
+  { id: 'scene-forest', slot: 'scene', name: 'Forest floor', rule: hatch, color: '#8fa08b' },
+  { id: 'scene-cave', slot: 'scene', name: 'Cave', rule: { stage: 'snake' }, color: '#9b9286' },
+  { id: 'scene-fjord', slot: 'scene', name: 'Fjord', rule: { stage: 'serpent' }, color: '#8da3ab' },
+  { id: 'scene-deep', slot: 'scene', name: 'Deep sea', rule: { stage: 'sea' }, color: '#6e8c98' },
   {
     id: 'scene-midgard',
     slot: 'scene',
     name: 'Midgard',
     rule: { stage: 'world' },
-    color: '#0b1020',
+    color: '#7f95a1',
   },
 ];
 
@@ -99,7 +100,7 @@ export const SLOTS: { slot: Slot; name: string }[] = [
 export type Equipped = Record<Slot, string>;
 
 export const DEFAULT_EQUIPPED: Equipped = {
-  skin: 'skin-slate',
+  skin: 'skin-bone',
   pattern: 'pattern-plain',
   head: 'head-none',
   neck: 'neck-none',
