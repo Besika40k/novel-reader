@@ -17,6 +17,8 @@ export interface Prefs {
   immersive: boolean;
   /** Chapters after the open one to keep downloaded while reading; 0 turns it off. */
   downloadAhead: number;
+  /** Tap the top or bottom of the page to scroll a screen. */
+  tapToTurn: boolean;
   /** Save a backup to Documents once a week. */
   autoBackup: boolean;
   /** Check the library for new chapters every 12 hours, when the app opens. */
@@ -33,6 +35,7 @@ export const DEFAULT_PREFS: Prefs = {
   justify: false,
   immersive: true,
   downloadAhead: 1,
+  tapToTurn: false,
   autoBackup: true,
   autoUpdate: true,
 };

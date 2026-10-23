@@ -163,6 +163,13 @@ export function ReaderSettings() {
       />
 
       <SwitchRow
+        label="Tap to turn pages"
+        hint="Tap the top or bottom of the page to scroll a screen; the middle shows the bars"
+        checked={prefs.tapToTurn}
+        onChange={(tapToTurn) => setPrefs({ tapToTurn })}
+      />
+
+      <SwitchRow
         label="Full-screen reading"
         hint="Hides the phone's status and navigation bars"
         checked={prefs.immersive}

@@ -94,6 +94,11 @@ function ProgressLine() {
  * The chapter's paragraphs, memoised: saving the reading position while scrolling updates the
  * chapter row, which re-renders the page every 600 ms, and the text shouldn't be rebuilt each time.
  */
+/** Scrolls a screen's worth, keeping a couple of lines from the last screen in view. */
+function turnPage(direction: 1 | -1): void {
+  window.scrollBy({ top: direction * (window.innerHeight - 96), behavior: 'smooth' });
+}
+
 const ChapterText = memo(function ChapterText({ paragraphs }: { paragraphs: Paragraph[] }) {
   return paragraphs.map((paragraph) => (
     <p key={paragraph.index}>
@@ -293,6 +298,12 @@ export function ReaderPage() {
   const onTextClick = (event: MouseEvent) => {
     if ((event.target as Element).closest('button, a')) return;
     if (window.getSelection()?.toString()) return;
+    // Tap zones: the top and bottom thirds turn a page, the middle shows or hides the bars.
+    if (prefs.tapToTurn) {
+      const y = event.clientY / window.innerHeight;
+      if (y < 0.3) return turnPage(-1);
+      if (y > 0.7) return turnPage(1);
+    }
     setChrome((visible) => !visible);
   };
 
