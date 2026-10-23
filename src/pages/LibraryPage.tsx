@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type TouchEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Compass, RefreshCw } from 'lucide-react';
+import { Bell, Compass, RefreshCw } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Cover } from '@/components/Cover';
@@ -8,6 +8,7 @@ import { FitText } from '@/components/FitText';
 import { TopBar } from '@/components/TopBar';
 import { db } from '@/db/db';
 import { libraryNovels, novelPath, updateLibrary } from '@/db/library';
+import { hasUpdatesSince, useUpdatesSeen } from '@/db/updates';
 import { usePageScroll } from '@/lib/scroll';
 import { toast } from '@/lib/toast';
 import styles from './LibraryPage.module.scss';
@@ -36,6 +37,8 @@ export function LibraryPage() {
   const swipe = useRef<{ x: number; y: number; time: number }>(undefined);
   const tabs = useRef<HTMLElement>(null);
   const [updating, setUpdating] = useState(false);
+  const seen = useUpdatesSeen();
+  const unseen = useLiveQuery(() => hasUpdatesSince(seen), [seen]);
   usePageScroll('library', novels !== undefined);
 
   // A deleted category falls back to showing everything.
@@ -109,13 +112,24 @@ export function LibraryPage() {
         rune="ansuz"
         title="Library"
         actions={
-          <IconButton
-            label="Check all novels for new chapters"
-            disabled={updating || !novels?.length}
-            onClick={update}
-          >
-            {updating ? <Spinner /> : <RefreshCw />}
-          </IconButton>
+          <>
+            <IconButton
+              label="Check all novels for new chapters"
+              disabled={updating || !novels?.length}
+              onClick={update}
+            >
+              {updating ? <Spinner /> : <RefreshCw />}
+            </IconButton>
+            <span className={styles.bell}>
+              <IconButton
+                label={unseen ? 'Updates, new chapters found' : 'Updates'}
+                onClick={() => navigate('/updates')}
+              >
+                <Bell />
+              </IconButton>
+              {unseen && <span className={styles.dot} />}
+            </span>
+          </>
         }
       />
 

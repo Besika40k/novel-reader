@@ -41,6 +41,8 @@ export interface Chapter {
   progress: number;
   /** 1 when the text is stored and readable offline. */
   downloaded: Flag;
+  /** When a library check found it; unset for chapters known from the start. */
+  foundAt?: number;
 }
 
 /** A chapter's text exactly as the source served it. Fixes are applied when it's shown. */
@@ -151,6 +153,9 @@ db.version(4)
   });
 
 db.version(5).stores({ stats: 'id, day, novelId' });
+db.version(6).stores({
+  chapters: 'url, novelId, [novelId+index], [novelId+read], [novelId+downloaded], foundAt',
+});
 
 db.on('populate', async (tx) => {
   await tx
