@@ -24,7 +24,7 @@ export const ChapterRow = memo(function ChapterRow({
   onActions,
   onDownload,
 }: ChapterRowProps) {
-  const reading = !chapter.read && chapter.progress > 0.01;
+  const reading = readingPercent(chapter);
   const classes = [styles.row, chapter.read && styles.read, current && styles.current];
   return (
     <li
@@ -47,7 +47,7 @@ export const ChapterRow = memo(function ChapterRow({
           {chapter.title}
         </span>
         <span className={styles.sub}>
-          {[chapter.released, reading && `${Math.round(chapter.progress * 100)}% read`]
+          {[chapter.released, reading !== undefined && `${reading}% read`]
             .filter(Boolean)
             .join(' · ')}
         </span>
@@ -55,7 +55,38 @@ export const ChapterRow = memo(function ChapterRow({
       <DownloadState chapter={chapter} job={job} onDownload={onDownload} onActions={onActions} />
     </li>
   );
-});
+}, sameRow);
+
+/** The "n% read" a row shows for a chapter that's started but not finished. */
+function readingPercent(chapter: Chapter): number | undefined {
+  return !chapter.read && chapter.progress > 0.01 ? Math.round(chapter.progress * 100) : undefined;
+}
+
+/**
+ * Whether a row would look the same. The database hands back new chapter objects on every change
+ * (a finished download, a saved reading position), so comparing by reference redrew all of a
+ * long list each time; this compares what the row shows instead.
+ */
+function sameRow(a: ChapterRowProps, b: ChapterRowProps): boolean {
+  const x = a.chapter;
+  const y = b.chapter;
+  return (
+    x.url === y.url &&
+    x.index === y.index &&
+    x.title === y.title &&
+    x.released === y.released &&
+    x.read === y.read &&
+    x.downloaded === y.downloaded &&
+    x.bookmarked === y.bookmarked &&
+    readingPercent(x) === readingPercent(y) &&
+    a.job === b.job &&
+    a.current === b.current &&
+    a.flash === b.flash &&
+    a.onOpen === b.onOpen &&
+    a.onActions === b.onActions &&
+    a.onDownload === b.onDownload
+  );
+}
 
 function DownloadState({
   chapter,
