@@ -148,6 +148,8 @@
 
 .end {
   display: grid;
+  // Buttons don't wrap, so a long next-chapter title would widen an auto track past the screen.
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   margin-top: 2.5em;
   font-family: var(--font-ui);
@@ -155,6 +157,7 @@
 }
 
 .ellipsis {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
