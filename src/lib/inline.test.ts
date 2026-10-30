@@ -67,4 +67,23 @@ describe('extractParagraphs', () => {
     const container = body('<p>Keep</p><div class="ad"><p>Drop</p></div>');
     expect(extractParagraphs(container, (el) => el.classList.contains('ad'))).toEqual(['Keep']);
   });
+  it('keeps a table of two columns as rows and cells', () => {
+    const container = body(
+      '<p>Before.</p><table><tbody>' +
+        '<tr><td><p><strong>Name - Unnamed</strong></p></td><td><p>Skills (0/3)</p></td></tr>' +
+        '<tr><td></td><td></td></tr>' +
+        '<tr><td><p>Strength - 100</p></td><td></td></tr>' +
+        '</tbody></table><p>After.</p>',
+    );
+    expect(extractParagraphs(container)).toEqual([
+      'Before.',
+      '<b>Name - Unnamed</b>\tSkills (0/3)\nStrength - 100\t',
+      'After.',
+    ]);
+  });
+
+  it('reads a one-column table as paragraphs', () => {
+    const container = body('<table><tbody><tr><td><p>One</p><p>Two</p></td></tr></tbody></table>');
+    expect(extractParagraphs(container)).toEqual(['One', 'Two']);
+  });
 });
