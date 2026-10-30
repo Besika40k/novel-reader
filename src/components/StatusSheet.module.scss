@@ -1,0 +1,43 @@
+.sheet {
+  margin: 0 0 var(--reader-gap);
+  padding: 0.9em 1.1em;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-family: var(--font-ui);
+  font-size: 0.82em;
+  line-height: 1.5;
+}
+
+.heading {
+  margin-top: 0.8em;
+  padding-top: 0.8em;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.8em;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  &:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  b {
+    font-weight: inherit;
+  }
+}
+
+// The value moves to its own line, still on the right, when the label leaves no room.
+.value {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1em;
+
+  > :last-child {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+}

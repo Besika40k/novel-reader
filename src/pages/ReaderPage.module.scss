@@ -122,18 +122,6 @@
   }
 }
 
-// A status sheet or other table, as the site lays it out.
-.table {
-  display: grid;
-  gap: 0.15em 1em;
-  margin: 0 0 var(--reader-gap);
-  padding: 0.7em 0.9em;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: 0.85em;
-  line-height: 1.45;
-}
-
 .reader[data-justify='true'] .article p {
   text-align: justify;
   hyphens: auto;
