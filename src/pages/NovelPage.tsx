@@ -38,6 +38,7 @@ import {
 import { enqueueDownloads, useDownloads } from '@/downloads/queue';
 import { errorMessage } from '@/lib/async';
 import { usePageScroll } from '@/lib/scroll';
+import { setPrefs, usePrefs } from '@/lib/prefs';
 import { toast } from '@/lib/toast';
 import { sources } from '@/sources';
 import { plural } from '@/lib/format';
@@ -59,7 +60,7 @@ export function NovelPage() {
   const downloads = useDownloads();
   const refreshing = useSyncExternalStore(subscribeRefreshing, () => isRefreshing(novelId));
   const [error, setError] = useState<string>();
-  const [newestFirst, setNewestFirst] = useState(false);
+  const { chaptersNewestFirst: newestFirst } = usePrefs();
   const [bookmarksOnly, setBookmarksOnly] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [sheet, setSheet] = useState<'library' | 'download' | 'royalRoad' | 'menu'>();
@@ -292,7 +293,7 @@ export function NovelPage() {
         <IconButton
           label={newestFirst ? 'Show oldest first' : 'Show newest first'}
           aria-pressed={newestFirst}
-          onClick={() => setNewestFirst((value) => !value)}
+          onClick={() => setPrefs({ chaptersNewestFirst: !newestFirst })}
         >
           <ArrowDownUp />
         </IconButton>

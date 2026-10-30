@@ -15,6 +15,7 @@ import { ArrowLeft, ArrowUpToLine, Bookmark, ChevronLeft, ChevronRight, Type } f
 import { useNavigate, useParams } from 'react-router';
 import { Button, IconButton, Spinner } from '@/components/Button';
 import { Inline } from '@/components/Inline';
+import { CELL } from '@/lib/inline';
 import { QuoteNotice } from '@/components/QuoteNotice';
 import { ReaderSettings } from '@/components/ReaderSettings';
 import { Sheet } from '@/components/Sheet';
@@ -101,11 +102,32 @@ function turnPage(direction: 1 | -1): void {
 }
 
 const ChapterText = memo(function ChapterText({ paragraphs }: { paragraphs: Paragraph[] }) {
-  return paragraphs.map((paragraph) => (
-    <p key={paragraph.index}>
-      <Inline markup={paragraph.markup} />
-    </p>
-  ));
+  return paragraphs.map((paragraph) => {
+    if (!paragraph.markup.includes(CELL)) {
+      return (
+        <p key={paragraph.index}>
+          <Inline markup={paragraph.markup} />
+        </p>
+      );
+    }
+    const rows = paragraph.markup.split('\n').map((row) => row.split(CELL));
+    const columns = Math.max(...rows.map((cells) => cells.length));
+    return (
+      <div
+        key={paragraph.index}
+        className={styles.table}
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+      >
+        {rows.flatMap((cells, row) =>
+          Array.from({ length: columns }, (_, column) => (
+            <span key={`${row}:${column}`}>
+              <Inline markup={cells[column] ?? ''} />
+            </span>
+          )),
+        )}
+      </div>
+    );
+  });
 });
 
 export function ReaderPage() {

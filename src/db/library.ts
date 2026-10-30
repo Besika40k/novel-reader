@@ -63,24 +63,85 @@ export async function novelFromLink(link: string): Promise<string> {
   return ensureNovel(source, { url: source.novelUrl(key), title: titleFromKey(key) });
 }
 
+/** A chapter title reduced to what tells chapters apart: "CH1134 Delair’s Perspective" and
+ * "Chapter 1134 Delair's Perspective" give the same key. Titles without a number give none. */
+export function titleKey(title: string): string | undefined {
+  const key = title
+    .toLowerCase()
+    .replace(/^\s*(?:chapter|ch)\.?\s*(?=\d)/, 'chapter ')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .trim();
+  return /\d/.test(key) ? key : undefined;
+}
+
+/**
+ * Chapters a site lists twice (its scraper sometimes copies a run of chapters again under
+ * slightly different titles, as "CH1131" after "Chapter 1131"). Maps each later copy's URL to
+ * the first copy's.
+ */
+export function findRepeats(
+  chapters: Pick<Chapter, 'url' | 'index' | 'title'>[],
+): Map<string, string> {
+  const first = new Map<string, string>();
+  const repeats = new Map<string, string>();
+  for (const chapter of [...chapters].sort((a, b) => a.index - b.index)) {
+    const key = titleKey(chapter.title);
+    if (!key) continue;
+    const kept = first.get(key);
+    if (kept === undefined) first.set(key, chapter.url);
+    else if (kept !== chapter.url) repeats.set(chapter.url, kept);
+  }
+  return repeats;
+}
+
 /**
  * Adds new chapters and updates titles of known ones, keeping reading state. New chapters get
- * `foundAt` when given, for the Updates page. Returns how many are new.
+ * `foundAt` when given, for the Updates page. Chapters the site lists twice are left out, and
+ * stored ones removed with their reading state moved to the first copy. Returns how many are new.
  */
 async function mergeChapters(
   novelId: string,
   refs: ChapterRef[],
   foundAt?: number,
 ): Promise<number> {
-  return db.transaction('rw', db.chapters, async () => {
-    const existing = await db.chapters.bulkGet(refs.map((ref) => ref.url));
-    const rows: Chapter[] = refs.map((ref, i) => {
-      const known = existing[i];
-      if (known) return { ...known, index: ref.index, title: ref.title, released: ref.released };
-      return { ...ref, novelId, read: 0, progress: 0, downloaded: 0, foundAt };
-    });
-    await db.chapters.bulkPut(rows);
-    return existing.filter((row) => !row).length;
+  return db.transaction('rw', [db.chapters, db.contents, db.novels], async () => {
+    const stored = new Map((await chaptersOf(novelId).toArray()).map((row) => [row.url, row]));
+    const rows = new Map<string, Chapter>(stored);
+    let added = 0;
+    for (const ref of refs) {
+      const known = stored.get(ref.url);
+      if (!known) added++;
+      rows.set(
+        ref.url,
+        known
+          ? { ...known, index: ref.index, title: ref.title, released: ref.released }
+          : { ...ref, novelId, read: 0, progress: 0, downloaded: 0, foundAt },
+      );
+    }
+
+    const repeats = findRepeats([...rows.values()]);
+    for (const [url, keptUrl] of repeats) {
+      const copy = rows.get(url)!;
+      const kept = rows.get(keptUrl)!;
+      if (!stored.has(url)) added--;
+      rows.set(keptUrl, {
+        ...kept,
+        read: copy.read || kept.read,
+        progress: Math.max(copy.progress, kept.progress),
+        bookmarked: copy.bookmarked || kept.bookmarked,
+      });
+      rows.delete(url);
+    }
+    const removed = [...repeats.keys()].filter((url) => stored.has(url));
+    if (removed.length > 0) {
+      await db.chapters.bulkDelete(removed);
+      await db.contents.bulkDelete(removed);
+      const novel = await db.novels.get(novelId);
+      const lastRead = novel?.lastReadUrl && repeats.get(novel.lastReadUrl);
+      if (lastRead) await db.novels.update(novelId, { lastReadUrl: lastRead });
+    }
+    await db.chapters.bulkPut([...rows.values()]);
+    return added;
   });
 }
 
@@ -114,7 +175,8 @@ async function doRefresh(novelId: string, withDetails: boolean): Promise<number>
   const novel = await db.novels.get(novelId);
   if (!novel) throw new Error('This novel is no longer stored.');
   const source = getSource(novel.sourceId);
-  const knownCount = await db.chapters.where('novelId').equals(novelId).count();
+  // The last stored position, not the number stored: chapters a site lists twice aren't kept.
+  const knownCount = (await chaptersOf(novelId).last())?.index ?? 0;
   const [details, refs] = await Promise.all([
     withDetails || knownCount === 0 ? source.getNovel(novel.url) : undefined,
     source.getChapterList(novel.url, { knownCount }),

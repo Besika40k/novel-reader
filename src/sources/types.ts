@@ -79,7 +79,7 @@ export interface ChapterText {
 }
 
 export interface ChapterListOptions {
-  /** How many chapters are already stored, so a source can skip list pages it has seen. */
+  /** The last stored chapter's index, so a source can skip list pages it has seen. */
   knownCount: number;
   signal?: AbortSignal;
 }

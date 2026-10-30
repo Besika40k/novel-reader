@@ -1,6 +1,7 @@
 /**
  * Chapter text is stored as "inline markup": HTML-escaped text with only <b> and <i> tags, and
- * "\n" for a line break inside a paragraph. That keeps the emphasis novels rely on (skill names,
+ * "\n" for a line break inside a paragraph. A table of two or more columns (status sheets) is one
+ * paragraph: rows split by "\n", cells by "\t". That keeps the emphasis novels rely on (skill names,
  * thoughts, system messages) without ever storing or rendering a website's raw HTML.
  */
 
@@ -44,9 +45,16 @@ const BLOCK = new Set([
   'LI',
   'PRE',
   'TABLE',
+  'THEAD',
+  'TBODY',
+  'TFOOT',
   'TR',
   'TD',
+  'TH',
 ]);
+
+/** Separates the cells of a table row in a table paragraph. */
+export const CELL = '\t';
 
 export function escapeInline(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -176,6 +184,21 @@ export function extractParagraphs(
     run += markup;
   };
 
+  // A one-column table is only a box around paragraphs, and reads as them.
+  const table = (el: Element): string | undefined => {
+    const rows = Array.from(el.querySelectorAll(':scope > tr, :scope > * > tr'), (row) =>
+      Array.from(row.children)
+        .filter((cell) => cell.tagName === 'TD' || cell.tagName === 'TH')
+        .map((cell) =>
+          extractParagraphs(cell, skip)
+            .join(' ')
+            .replace(/\s*\n\s*/g, ' '),
+        ),
+    ).filter((cells) => cells.some(Boolean));
+    if (Math.max(0, ...rows.map((cells) => cells.length)) < 2) return undefined;
+    return rows.map((cells) => cells.join(CELL)).join('\n');
+  };
+
   const walk = (parent: Element) => {
     parent.childNodes.forEach((node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -189,6 +212,13 @@ export function extractParagraphs(
       if (tag === 'BR') {
         flush();
         afterBlock = false;
+        return;
+      }
+      const grid = tag === 'TABLE' ? table(el) : undefined;
+      if (grid) {
+        flush();
+        paragraphs.push(grid);
+        afterBlock = true;
         return;
       }
       if (BLOCK.has(tag)) {
