@@ -23,6 +23,8 @@ export interface Prefs {
   autoBackup: boolean;
   /** Check the library for new chapters every 12 hours, when the app opens. */
   autoUpdate: boolean;
+  /** Novel page chapter list order. */
+  chaptersNewestFirst: boolean;
 }
 
 export const DEFAULT_PREFS: Prefs = {
@@ -38,6 +40,7 @@ export const DEFAULT_PREFS: Prefs = {
   tapToTurn: false,
   autoBackup: true,
   autoUpdate: true,
+  chaptersNewestFirst: false,
 };
 
 // Also read by the inline script in index.html.
